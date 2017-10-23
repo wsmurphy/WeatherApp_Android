@@ -1,4 +1,4 @@
-package com.test.murphy.weatherapp;
+package com.test.murphy.weatherapp.model;
 
 import org.json.JSONException;
 import org.json.JSONObject;
