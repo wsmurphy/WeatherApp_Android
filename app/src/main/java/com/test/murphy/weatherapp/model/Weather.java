@@ -5,8 +5,8 @@ package com.test.murphy.weatherapp;
  */
 
 abstract class Weather {
-    Double currentTemperatureRaw;
-    int currentTemperature;
+    Double currentTemperatureF;
+    Double currentTemperatureC;
 
     String currentConditions;
     String location;

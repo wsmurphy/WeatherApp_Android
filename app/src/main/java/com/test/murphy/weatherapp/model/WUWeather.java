@@ -12,8 +12,8 @@ public class WUWeather extends Weather {
         try {
             JSONObject currentObservation = jsonObject.getJSONObject("current_observation");
 
-            currentTemperatureRaw = currentObservation.getDouble("temp_f"); //TODO: Will need to switch here for F vs C
-            currentTemperature = currentTemperatureRaw.intValue();
+            currentTemperatureF = currentObservation.getDouble("temp_f");
+            currentTemperatureC = currentObservation.getDouble("temp_c");
 
             currentConditions = currentObservation.getString("weather");
 

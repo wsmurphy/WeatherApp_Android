@@ -11,8 +11,8 @@ public class OWAWeather extends Weather {
     public OWAWeather(JSONObject jsonObject) {
         try {
             JSONObject mainObject = jsonObject.getJSONObject("main");
-            currentTemperatureRaw = mainObject.getDouble("temp");
-            currentTemperature = currentTemperatureRaw.intValue();
+            currentTemperatureF = mainObject.getDouble("temp"); //There is no separate F and C temp in this API
+            currentTemperatureC = mainObject.getDouble("temp");
 
             JSONObject weatherObject = jsonObject.getJSONArray("weather").getJSONObject(0);
             currentConditions = weatherObject.getString("main");
