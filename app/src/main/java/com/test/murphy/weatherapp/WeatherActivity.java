@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -15,6 +16,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
+import android.view.Gravity;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
@@ -28,6 +30,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.test.murphy.weatherapp.model.Units;
 import com.test.murphy.weatherapp.model.WeatherConditions;
 import com.test.murphy.weatherapp.model.WeatherForecast;
 
@@ -57,44 +60,25 @@ public class WeatherActivity extends AppCompatActivity {
 
     private String zip = "";
 
+    private int screenWidth = 0;
+
     LocationManager locationManager;
 
     private static final int REQUEST_LOCATION = 0;
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("h aa");
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("h aa", Locale.US);
 
     private Units units = Units.Farenheight;
-
-    private enum Units {
-        Farenheight, Celcius;
-    }
-
-    private String getUnitsText() {
-        switch (this.units) {
-            case Farenheight:
-                return "° F";
-            case Celcius:
-                return "° C";
-            default:
-                return "";
-        }
-    }
-
-    private String getUnitsType() {
-        switch (this.units) {
-            case Farenheight:
-                return "imperial";
-            case Celcius:
-                return "metric";
-            default:
-                return "";
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
         ButterKnife.bind(this);
+
+        //Get screenWidth for setting up forecast view
+        Point size = new Point();
+        getWindowManager().getDefaultDisplay().getSize(size);
+        screenWidth = size.x;
 
         //If the zip code isn't set, resolve from device location
         if (zip == "") {
@@ -105,10 +89,67 @@ public class WeatherActivity extends AppCompatActivity {
         getForecast(zip);
     }
 
-    void updateViewFields(WeatherConditions weatherConditions) {
-        temperatureText.setText(String.valueOf(weatherConditions.currentTemperature) + getUnitsText());
+    void updateConditionsLayout(WeatherConditions weatherConditions) {
+        temperatureText.setText(String.valueOf(weatherConditions.currentTemperature) + units.getText());
         conditionsText.setText(weatherConditions.currentConditions);
         locationText.setText(weatherConditions.location);
+    }
+
+    void updateForecastLayout(WeatherForecast forecast) {
+        //Use lesser of 3 or the size of the forecast
+        int columnCount = forecast.forecast.size() < 3 ? forecast.forecast.size() : 3;
+
+        gridLayout.setColumnCount(columnCount);
+        gridLayout.setRowCount(3);
+        gridLayout.setOrientation(GridLayout.VERTICAL);
+        gridLayout.removeAllViewsInLayout();
+
+        for (int i = 0; i < 3; i++) {
+            WeatherConditions weather = forecast.forecast.get(i);
+
+
+            //Time
+            GridLayout.LayoutParams first = new GridLayout.LayoutParams(GridLayout.spec(0), GridLayout.spec(i));
+            first.width = screenWidth / 3;
+            first.height = gridLayout.getHeight() / 3;
+
+            TextView forecastTime = new TextView(getApplicationContext());
+            String formattedDate = dateFormat.format(weather.date).toString();
+            forecastTime.setText(formattedDate);
+            forecastTime.setTextColor(Color.WHITE);
+            forecastTime.setLayoutParams(first);
+            forecastTime.setGravity(Gravity.CENTER);
+
+            gridLayout.addView(forecastTime, first);
+
+
+            //Temp
+            GridLayout.LayoutParams second = new GridLayout.LayoutParams(GridLayout.spec(1), GridLayout.spec(i));
+            second.width = screenWidth / 3;
+            second.height = gridLayout.getHeight() / 3;
+
+            TextView forecastTemp = new TextView(getApplicationContext());
+            forecastTemp.setText(weather.currentTemperature.toString() + units.getText());
+            forecastTemp.setTextColor(Color.WHITE);
+            forecastTemp.setLayoutParams(second);
+            forecastTemp.setGravity(Gravity.CENTER);
+
+            gridLayout.addView(forecastTemp, second);
+
+
+            //Conditions
+            GridLayout.LayoutParams third = new GridLayout.LayoutParams(GridLayout.spec(2), GridLayout.spec(i));
+            third.width = screenWidth / 3;
+            third.height = gridLayout.getHeight() / 3;
+
+            TextView forecastConditions = new TextView(getApplicationContext());
+            forecastConditions.setText(weather.currentConditions);
+            forecastConditions.setTextColor(Color.WHITE);
+            forecastConditions.setLayoutParams(third);
+            forecastConditions.setGravity(Gravity.CENTER);
+
+            gridLayout.addView(forecastConditions, third);
+        }
     }
 
     @OnClick(R.id.locationButton)
@@ -128,6 +169,8 @@ public class WeatherActivity extends AppCompatActivity {
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
         layout.addView(input, params);
 
+        input.requestFocus();
+
         builder.setView(layout);
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
@@ -144,6 +187,8 @@ public class WeatherActivity extends AppCompatActivity {
            public void onClick(DialogInterface dialog, int which) {
                 //Resolve GPS\Network location
                resolveLocation();
+               getWeather(zip);
+               getForecast(zip);
            }
         });
 
@@ -233,17 +278,17 @@ public class WeatherActivity extends AppCompatActivity {
         String BASE_URL = "http://api.openweathermap.org/data/2.5/weather?zip=";
         String location = zip + ",us";
         String appId = "&APPID=b4608d4fcb4accac0a8cc2ea6949eeb5";
-        String units = "&units=" + getUnitsType();
+        String unitsPart = "&units=" + units.getType();
 
         final RequestQueue queue = Volley.newRequestQueue(this);
-        String url = BASE_URL + location + appId + units;
+        String url = BASE_URL + location + appId + unitsPart;
 
         JsonObjectRequest jsonRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         WeatherConditions weather = new WeatherConditions(response);
-                        updateViewFields(weather);
+                        updateConditionsLayout(weather);
                     }
                 }, new Response.ErrorListener() {
                     @Override
@@ -258,44 +303,17 @@ public class WeatherActivity extends AppCompatActivity {
         String BASE_URL = "http://api.openweathermap.org/data/2.5/forecast?zip=";
         String location = zip + ",us";
         String appId = "&APPID=b4608d4fcb4accac0a8cc2ea6949eeb5";
-        String units = "&units=" + getUnitsType();
+        String unitsPart = "&units=" + units.getType();
 
         final RequestQueue queue = Volley.newRequestQueue(this);
-        String url = BASE_URL + location + appId + units;
+        String url = BASE_URL + location + appId + unitsPart;
 
         JsonObjectRequest jsonRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-
                         WeatherForecast forecast = new WeatherForecast(response);
-
-                        gridLayout.setColumnCount(3);
-                        gridLayout.setRowCount(3);
-                        gridLayout.setOrientation(GridLayout.VERTICAL);
-                        gridLayout.removeAllViewsInLayout();
-
-                        for (int i = 0; i < 3; i++) {
-                            WeatherConditions weather = forecast.forecast.get(i);
-
-                            TextView forecastConditions = new TextView(getApplicationContext());
-                            forecastConditions.setText(weather.currentConditions);
-                            forecastConditions.setTextColor(Color.WHITE);
-
-                            TextView forecastTemp = new TextView(getApplicationContext());
-                            forecastTemp.setText(weather.currentTemperature.toString() + getUnitsText());
-                            forecastTemp.setTextColor(Color.WHITE);
-
-                            TextView forecastTime = new TextView(getApplicationContext());
-                            String formattedDate = dateFormat.format(weather.date).toString();
-                            forecastTime.setText(formattedDate);
-                            forecastTime.setTextColor(Color.WHITE);
-
-                            //TODO: Fix layout to spread evenly
-                            gridLayout.addView(forecastTime);
-                            gridLayout.addView(forecastTemp);
-                            gridLayout.addView(forecastConditions);
-                        }
+                        updateForecastLayout(forecast);
                     }
                 }, new Response.ErrorListener() {
                     @Override
