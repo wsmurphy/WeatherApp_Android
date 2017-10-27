@@ -24,17 +24,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.test.murphy.weatherapp.model.Units;
 import com.test.murphy.weatherapp.model.WeatherConditions;
 import com.test.murphy.weatherapp.model.WeatherForecast;
-
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -49,7 +41,7 @@ import butterknife.OnClick;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 
-public class WeatherActivity extends AppCompatActivity {
+public class WeatherActivity extends AppCompatActivity implements ConnectionsDelegate {
 
     @BindView(R.id.temperatureText) TextView temperatureText;
     @BindView(R.id.conditionsText) TextView conditionsText;
@@ -73,7 +65,10 @@ public class WeatherActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
+
         ButterKnife.bind(this);
+
+        Connections.getInstance(this.getApplicationContext()).setDelegate(this);
 
         //Get screenWidth for setting up forecast view
         Point size = new Point();
@@ -85,8 +80,12 @@ public class WeatherActivity extends AppCompatActivity {
             resolveLocation();
         }
 
-        getWeather(zip);
-        getForecast(zip);
+        reloadWeather();
+    }
+
+    void reloadWeather() {
+        Connections.getInstance(WeatherActivity.this).getWeather(zip, units);
+        Connections.getInstance(WeatherActivity.this).getForecast(zip, units);
     }
 
     void updateConditionsLayout(WeatherConditions weatherConditions) {
@@ -177,8 +176,7 @@ public class WeatherActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 //TODO: Edit checks on zip to ensure 5 digits
                 zip = input.getText().toString();
-                getWeather(zip);
-                getForecast(zip);
+                reloadWeather();
             }
         });
 
@@ -187,8 +185,7 @@ public class WeatherActivity extends AppCompatActivity {
            public void onClick(DialogInterface dialog, int which) {
                 //Resolve GPS\Network location
                resolveLocation();
-               getWeather(zip);
-               getForecast(zip);
+               reloadWeather();
            }
         });
 
@@ -270,57 +267,16 @@ public class WeatherActivity extends AppCompatActivity {
         }
 
         //After settings changed, reload weather
-        getWeather(zip);
-        getForecast(zip);
+        reloadWeather();
     }
 
-    void getWeather(String zip) {
-        String BASE_URL = "http://api.openweathermap.org/data/2.5/weather?zip=";
-        String location = zip + ",us";
-        String appId = "&APPID=b4608d4fcb4accac0a8cc2ea6949eeb5";
-        String unitsPart = "&units=" + units.getType();
-
-        final RequestQueue queue = Volley.newRequestQueue(this);
-        String url = BASE_URL + location + appId + unitsPart;
-
-        JsonObjectRequest jsonRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        WeatherConditions weather = new WeatherConditions(response);
-                        updateConditionsLayout(weather);
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {}
-                });
-
-        // Add the request to the RequestQueue.
-        queue.add(jsonRequest);
+    @Override
+    public void weatherSuccess(WeatherConditions conditions) {
+        updateConditionsLayout(conditions);
     }
 
-    void getForecast(String zip) {
-        String BASE_URL = "http://api.openweathermap.org/data/2.5/forecast?zip=";
-        String location = zip + ",us";
-        String appId = "&APPID=b4608d4fcb4accac0a8cc2ea6949eeb5";
-        String unitsPart = "&units=" + units.getType();
-
-        final RequestQueue queue = Volley.newRequestQueue(this);
-        String url = BASE_URL + location + appId + unitsPart;
-
-        JsonObjectRequest jsonRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        WeatherForecast forecast = new WeatherForecast(response);
-                        updateForecastLayout(forecast);
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {}
-                });
-
-        // Add the request to the RequestQueue.
-        queue.add(jsonRequest);
+    @Override
+    public void forecastSuccess(WeatherForecast forecast) {
+        updateForecastLayout(forecast);
     }
 }
