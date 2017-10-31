@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,59 +7,34 @@
     android:background="@android:color/background_dark"
     tools:context="com.test.murphy.weatherapp.WeatherActivity"
     tools:layout_editor_absoluteY="81dp"
-    tools:layout_editor_absoluteX="0dp">
+    tools:layout_editor_absoluteX="0dp"
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/temperatureText"
+    <fragment
+        android:id="@+id/conditionsFragment"
+        class="com.test.murphy.weatherapp.ConditionsFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="26dp"
-        android:text="99"
-        android:textAlignment="center"
-        android:textColor="@android:color/white"
-        android:textSize="36sp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/locationText"
-        tools:layout_constraintLeft_creator="1"
-        tools:layout_constraintTop_creator="1" />
-
-    <TextView
-        android:id="@+id/locationText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Location"
-        android:textAlignment="center"
-        android:textColor="@android:color/white"
-        android:textSize="24sp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/forecastFragment"
         app:layout_constraintTop_toTopOf="parent"
-        tools:layout_constraintLeft_creator="1"
-        tools:layout_constraintRight_creator="1"
-        tools:layout_constraintTop_creator="1" />
+        tools:layout="@layout/fragment_conditions"></fragment>
 
-    <TextView
-        android:id="@+id/conditionsText"
-        android:layout_width="0dp"
+    <fragment
+        android:id="@+id/forecastFragment"
+        class="com.test.murphy.weatherapp.ForecastFragment"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="22dp"
-        android:text="Conditions"
-        android:textAlignment="center"
-        android:textColor="@android:color/white"
-        android:textSize="32sp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/temperatureText"
-        tools:layout_constraintLeft_creator="1"
-        tools:layout_constraintRight_creator="1"
-        tools:layout_constraintTop_creator="1" />
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="16dp"
+        tools:layout="@layout/fragment_conditions"></fragment>
 
     <Button
         android:id="@+id/locationButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:layout_marginBottom="8dp"
         android:text="Change Location"
         app:layout_constraintBottom_toTopOf="@+id/unitsToggle"
@@ -72,6 +47,7 @@
         android:id="@+id/unitsToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:text="ToggleButton"
         android:textOff="° F"
         android:textOn="° C"
@@ -86,33 +62,4 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp" />
 
-    <TextView
-        android:id="@+id/nextLabel"
-        android:layout_width="368dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="fill"
-        android:layout_marginTop="8dp"
-        android:text="Upcoming conditions"
-        android:textAlignment="center"
-        android:textColor="@android:color/white"
-        android:textSize="18sp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/conditionsText" />
-
-    <GridLayout
-        android:id="@+id/forecastGrid"
-        android:layout_width="0dp"
-        android:layout_height="100dp"
-        android:layout_marginTop="4dp"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nextLabel"
-        tools:layout_constraintLeft_creator="1"
-        tools:layout_constraintRight_creator="1"
-        tools:layout_constraintTop_creator="1">
-
-    </GridLayout>
-
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>
