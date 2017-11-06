@@ -15,6 +15,8 @@ import com.test.murphy.weatherapp.model.Units;
 import com.test.murphy.weatherapp.model.WeatherConditions;
 import com.test.murphy.weatherapp.model.WeatherForecast;
 
+import java.io.IOException;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
@@ -56,8 +58,16 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
     }
 
     void reloadWeather() {
-        Connections.getInstance(WeatherActivity.this).getWeather(zip, units);
-        Connections.getInstance(WeatherActivity.this).getForecast(zip, units);
+        try {
+            if (zip != "") {
+                Connections.getInstance(WeatherActivity.this).getWeather(zip, units);
+                //Connections.getInstance(WeatherActivity.this).getForecastVolley(zip, units);
+                Connections.getInstance(WeatherActivity.this).getForecastOkHttp(zip, units);
+            }
+        } catch (IOException e) {
+            //TODO
+        }
+
     }
 
     public Units getUnits() {
@@ -88,8 +98,15 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
     }
 
     @Override
-    public void forecastSuccess(WeatherForecast forecast) {
-        forecastFragment.setWeatherForecast(forecast);
+    public void forecastSuccess(final WeatherForecast forecast) {
+        //THis should be sent from a background thread. Return to main before updating UI
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //execute code on main thread
+                forecastFragment.setWeatherForecast(forecast);
+            }
+        });
     }
 
     private void showLocationAlert() {
