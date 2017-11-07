@@ -2,14 +2,13 @@ package com.test.murphy.weatherapp;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Point;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ToggleButton;
 
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
@@ -20,21 +19,16 @@ import com.test.murphy.weatherapp.model.WeatherForecast;
 
 import java.io.IOException;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnCheckedChanged;
-import butterknife.OnClick;
 import io.fabric.sdk.android.Fabric;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 
-public class WeatherActivity extends AppCompatActivity implements ConnectionsDelegate {
+public class WeatherActivity extends AppCompatActivity implements ConnectionsDelegate, ButtonsFragment.OnFragmentInteractionListener {
 
-    @BindView(R.id.locationButton) Button locationButton;
-    @BindView(R.id.unitsToggle) ToggleButton unitsToggle;
     ConditionsFragment conditionsFragment;
     ForecastFragment forecastFragment;
+    ButtonsFragment buttonsFragment;
 
     private String zip = "";
 
@@ -52,9 +46,14 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
 
         conditionsFragment = (ConditionsFragment) getFragmentManager().findFragmentById(R.id.conditionsFragment);
         forecastFragment = (ForecastFragment) getFragmentManager().findFragmentById(R.id.forecastFragment);
-        ButterKnife.bind(this);
+        buttonsFragment = (ButtonsFragment) getFragmentManager().findFragmentById(R.id.buttonsFragment);
 
         Connections.getInstance(this.getApplicationContext()).setDelegate(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         //If the zip code isn't set, resolve from device location
         if (zip == "") {
@@ -81,30 +80,9 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
         return units;
     }
 
-    @OnClick(R.id.locationButton)
-    public void locationButtonPressed() {
-        //Display prompt to update location
-        showLocationAlert();
-    }
-
-    @OnCheckedChanged(R.id.unitsToggle)
-    public void toggleTapped() {
-
-        if (!unitsToggle.isChecked()) {
-            units = Units.Farenheight;
-        } else {
-            units = Units.Celcius;
-        }
-
-        Answers.getInstance().logCustom(new CustomEvent("Units Toggle Tapped").putCustomAttribute("Changed To", units.getText()));
-
-        //After settings changed, reload weather
-        reloadWeather();
-    }
-
     @Override
     public void weatherSuccess(WeatherConditions conditions) {
-        conditionsFragment.setWeatherConditions(conditions);
+        conditionsFragment.setWeatherConditions(conditions , units);
     }
 
     @Override
@@ -114,7 +92,7 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
             @Override
             public void run() {
                 //execute code on main thread
-                forecastFragment.setWeatherForecast(forecast);
+                forecastFragment.setWeatherForecast(forecast, units, getScreenWidth());
             }
         });
     }
@@ -169,5 +147,45 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
         });
 
         builder.show();
+    }
+
+    @Override
+    public void onAboutButtonTapped() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("About");
+        builder.setMessage("Weather icons courtesy of Icons8 under CC-BY ND 3.0 license.\nhttps://icons8.com/");
+        builder.setPositiveButton("OK",  new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            //TODO: Do nothing
+            }
+        });
+        builder.show();
+    }
+
+    @Override
+    public void onUnitToggleTapped() {
+        if (!buttonsFragment.isUnitsToggleChecked()) {
+            units = Units.Farenheight;
+        } else {
+            units = Units.Celcius;
+        }
+
+        Answers.getInstance().logCustom(new CustomEvent("Units Toggle Tapped").putCustomAttribute("Changed To", units.getText()));
+
+        //After settings changed, reload weather
+        reloadWeather();
+    }
+
+    @Override
+    public void onLocationButtonTapped() {
+        //Display prompt to update location
+        showLocationAlert();
+    }
+
+    private int getScreenWidth() {
+        Point size = new Point();
+        getWindowManager().getDefaultDisplay().getSize(size);
+        return size.x;
     }
 }
