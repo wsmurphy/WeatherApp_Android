@@ -11,6 +11,9 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ToggleButton;
 
+import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
 import com.test.murphy.weatherapp.model.Units;
 import com.test.murphy.weatherapp.model.WeatherConditions;
 import com.test.murphy.weatherapp.model.WeatherForecast;
@@ -21,6 +24,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
+import io.fabric.sdk.android.Fabric;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
@@ -42,6 +46,9 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
+
+        Fabric.with(this, new Crashlytics());
+        Fabric.with(this, new Answers());
 
         conditionsFragment = (ConditionsFragment) getFragmentManager().findFragmentById(R.id.conditionsFragment);
         forecastFragment = (ForecastFragment) getFragmentManager().findFragmentById(R.id.forecastFragment);
@@ -81,12 +88,15 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
     }
 
     @OnCheckedChanged(R.id.unitsToggle)
-    public void toggleClicked() {
+    public void toggleTapped() {
+
         if (!unitsToggle.isChecked()) {
             units = Units.Farenheight;
         } else {
             units = Units.Celcius;
         }
+
+        Answers.getInstance().logCustom(new CustomEvent("Units Toggle Tapped").putCustomAttribute("Changed To", units.getText()));
 
         //After settings changed, reload weather
         reloadWeather();
@@ -130,6 +140,8 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                Answers.getInstance().logCustom(new CustomEvent("Change Location Tapped").putCustomAttribute("Action","OK"));
+
                 //TODO: Edit checks on zip to ensure 5 digits
                 zip = input.getText().toString();
                 reloadWeather();
@@ -139,6 +151,8 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
         builder.setNeutralButton("Use Current Location", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                Answers.getInstance().logCustom(new CustomEvent("Change Location Tapped").putCustomAttribute("Action","Current Location"));
+
                 //Resolve GPS\Network location
                 LocationUtils.resolveLocation(WeatherActivity.this, WeatherActivity.this);
                 reloadWeather();
@@ -148,6 +162,8 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                Answers.getInstance().logCustom(new CustomEvent("Change Location Tapped").putCustomAttribute("Action","Cancel"));
+
                 dialog.cancel();
             }
         });
