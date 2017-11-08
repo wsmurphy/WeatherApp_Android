@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.test.murphy.weatherapp.model.Units;
 import com.test.murphy.weatherapp.model.WeatherConditions;
 
 import butterknife.BindView;
@@ -32,13 +33,6 @@ public class ConditionsFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @return A new instance of fragment ConditionsFragment.
-     */
     public static ConditionsFragment newInstance(WeatherConditions param1) {
         ConditionsFragment fragment = new ConditionsFragment();
         Bundle args = new Bundle();
@@ -65,15 +59,14 @@ public class ConditionsFragment extends Fragment {
 
     }
 
-    public void setWeatherConditions(WeatherConditions weatherConditions) {
+    public void setWeatherConditions(WeatherConditions weatherConditions, Units units) {
         this.weatherConditions = weatherConditions;
-        updateConditionsLayout();
+        updateConditionsLayout(units);
     }
 
-    private void updateConditionsLayout() {
-        //TODO: Fix the units thing
+    private void updateConditionsLayout(Units units) {
         WeatherActivity activity = (WeatherActivity) getActivity();
-        temperatureText.setText(String.valueOf(weatherConditions.currentTemperature) + activity.getUnits().getText());
+        temperatureText.setText(String.valueOf(weatherConditions.currentTemperature) + units.getText());
         conditionsText.setText(weatherConditions.currentConditions);
         locationText.setText(weatherConditions.location);
     }

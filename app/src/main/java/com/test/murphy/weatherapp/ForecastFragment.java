@@ -2,7 +2,6 @@ package com.test.murphy.weatherapp;
 
 import android.app.Fragment;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -30,10 +29,9 @@ import butterknife.ButterKnife;
 public class ForecastFragment extends Fragment {
     // the fragment initialization parameters
     private static final String ARG_FORECAST = "weatherForecast";
+    private static final String ARG_SCREEN_WIDTH = "screenWidth";
 
     private WeatherForecast weatherForecast;
-
-    private int screenWidth = 0;
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("h aa", Locale.US);
 
@@ -71,23 +69,12 @@ public class ForecastFragment extends Fragment {
                              Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_forecast, container, false);
         ButterKnife.bind(this, rootView);
-        // Inflate the layout for this fragment
-
-        //TODO: Fix width
-        //Get screenWidth for setting up forecast view
-        WeatherActivity activity = (WeatherActivity) getActivity();
-        Point size = new Point();
-        activity.getWindowManager().getDefaultDisplay().getSize(size);
-        screenWidth = size.x;
 
         return rootView;
     }
 
-    private void updateForecastLayout() {
-
-        //TODO: Fix unit handling
+    private void updateForecastLayout(Units units, int screenWidth) {
         WeatherActivity activity = (WeatherActivity) getActivity();
-        Units units = activity.getUnits();
 
         //Use lesser of 3 or the size of the forecast
         int columnCount = weatherForecast.forecast.length < 3 ? weatherForecast.forecast.length : 3;
@@ -146,8 +133,8 @@ public class ForecastFragment extends Fragment {
         }
     }
 
-    public void setWeatherForecast(WeatherForecast weatherForecast) {
+    public void setWeatherForecast(WeatherForecast weatherForecast, Units units, int screenWidth) {
         this.weatherForecast = weatherForecast;
-        updateForecastLayout();
+        updateForecastLayout(units, screenWidth);
     }
 }
