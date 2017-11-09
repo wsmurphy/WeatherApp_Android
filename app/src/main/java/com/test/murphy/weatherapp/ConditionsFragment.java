@@ -67,7 +67,6 @@ public class ConditionsFragment extends Fragment {
     }
 
     private void updateConditionsLayout(Units units) {
-        WeatherActivity activity = (WeatherActivity) getActivity();
         temperatureText.setText(String.valueOf(weatherConditions.currentTemperature) + units.getText());
         conditionsText.setText(weatherConditions.currentConditions);
         locationText.setText(weatherConditions.location);
@@ -103,6 +102,8 @@ public class ConditionsFragment extends Fragment {
             //Severe - No icons for these, hide the icon
             conditionsImage.setImageAlpha(0);
         }
+
+        conditionsImage.setContentDescription(weatherConditions.currentConditions);
     }
 
     public static boolean isBetween(int x, int lower, int upper) {

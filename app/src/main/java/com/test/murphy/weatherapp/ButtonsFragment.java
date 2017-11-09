@@ -23,11 +23,6 @@ public class ButtonsFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static ButtonsFragment newInstance() {
-        ButtonsFragment fragment = new ButtonsFragment();
-        return fragment;
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

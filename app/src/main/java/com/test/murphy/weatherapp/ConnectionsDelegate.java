@@ -8,6 +8,6 @@ import com.test.murphy.weatherapp.model.WeatherForecast;
  */
 
 public interface ConnectionsDelegate {
-    public void weatherSuccess(WeatherConditions conditions);
-    public void forecastSuccess(WeatherForecast forecast);
+    void weatherSuccess(WeatherConditions conditions);
+    void forecastSuccess(WeatherForecast forecast);
 }

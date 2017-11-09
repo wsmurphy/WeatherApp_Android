@@ -31,8 +31,9 @@ public class Connections {
 
     private static ConnectionsDelegate delegate;
 
-    private static Context mContext;
     private static Connections mInstance;
+
+    private Context mContext;
     private RequestQueue mQueue;
 
     public Connections(final Context context) {
