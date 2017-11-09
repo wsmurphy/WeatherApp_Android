@@ -68,7 +68,7 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
             if (!zip.equals("")) {
                 Connections.getInstance(WeatherActivity.this).getWeather(zip, units);
                 //Connections.getInstance(WeatherActivity.this).getForecastVolley(zip, units);
-                Connections.getInstance(WeatherActivity.this).getForecastOkHttp(zip, units);
+                Connections.getInstance(WeatherActivity.this).getForecast(zip, units);
             }
         } catch (IOException e) {
             //TODO
@@ -81,8 +81,15 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
     }
 
     @Override
-    public void weatherSuccess(WeatherConditions conditions) {
-        conditionsFragment.setWeatherConditions(conditions , units);
+    public void weatherSuccess(final WeatherConditions conditions) {
+        //THis should be sent from a background thread. Return to main before updating UI
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //execute code on main thread
+                conditionsFragment.setWeatherConditions(conditions , units);
+            }
+        });
     }
 
     @Override
