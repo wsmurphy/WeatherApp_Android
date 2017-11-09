@@ -20,39 +20,37 @@ import java.util.Locale;
  */
 
 public class LocationUtils {
+    public static final int REQUEST_LOCATION = 0;
 
     private static Location getLastBestLocation(Context context, Activity activity) {
-        final int REQUEST_LOCATION = 0;
 
-        LocationManager locationManager = (LocationManager)
-                context.getSystemService(Context.LOCATION_SERVICE);
-        if ( ContextCompat.checkSelfPermission( context, android.Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
-            ActivityCompat.requestPermissions( activity, new String[] {  android.Manifest.permission.ACCESS_COARSE_LOCATION  },
-                    REQUEST_LOCATION );
-        }
+        if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION);
+            return null;
+        } else {
+            LocationManager locationManager = (LocationManager)
+                    context.getSystemService(Context.LOCATION_SERVICE);
+            Location locationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            Location locationNet = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
-        if ( ContextCompat.checkSelfPermission( context, Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
-            ActivityCompat.requestPermissions( activity, new String[] {  android.Manifest.permission.ACCESS_FINE_LOCATION  },
-                    REQUEST_LOCATION );
-        }
+            long GPSLocationTime = 0;
+            if (null != locationGPS) {
+                GPSLocationTime = locationGPS.getTime();
+            }
 
-        Location locationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        Location locationNet = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            long NetLocationTime = 0;
 
-        long GPSLocationTime = 0;
-        if (null != locationGPS) { GPSLocationTime = locationGPS.getTime(); }
+            if (null != locationNet) {
+                NetLocationTime = locationNet.getTime();
+            }
 
-        long NetLocationTime = 0;
-
-        if (null != locationNet) {
-            NetLocationTime = locationNet.getTime();
-        }
-
-        if ( 0 < GPSLocationTime - NetLocationTime ) {
-            return locationGPS;
-        }
-        else {
-            return locationNet;
+            if (0 < GPSLocationTime - NetLocationTime) {
+                return locationGPS;
+            } else {
+                return locationNet;
+            }
         }
     }
 
