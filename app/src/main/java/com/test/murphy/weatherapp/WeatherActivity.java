@@ -5,6 +5,8 @@ import android.content.DialogInterface;
 import android.graphics.Point;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.widget.EditText;
@@ -24,7 +26,7 @@ import io.fabric.sdk.android.Fabric;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 
-public class WeatherActivity extends AppCompatActivity implements ConnectionsDelegate, ButtonsFragment.OnFragmentInteractionListener {
+public class WeatherActivity extends AppCompatActivity implements ConnectionsDelegate, ButtonsFragment.OnFragmentInteractionListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
     ConditionsFragment conditionsFragment;
     ForecastFragment forecastFragment;
@@ -187,5 +189,18 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getSize(size);
         return size.x;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        //Check if both requested permissions were granted. If denied, do nothing.
+        if (requestCode == LocationUtils.REQUEST_LOCATION &&
+                grantResults[0] == 0 &&
+                grantResults[1] == 0) {
+            LocationUtils.resolveLocation(this, this);
+            reloadWeather();
+        }
     }
 }
