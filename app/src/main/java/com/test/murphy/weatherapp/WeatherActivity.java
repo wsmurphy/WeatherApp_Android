@@ -59,7 +59,8 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
 
         //If the zip code isn't set, resolve from device location
         if (zip == "") {
-            LocationUtils.resolveLocation(this, this);
+            LocationUtils.getInstance().resolveLocation(this, this);
+            zip = LocationUtils.getInstance().getZip(this);
         }
 
         reloadWeather();
@@ -134,7 +135,8 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
                 Answers.getInstance().logCustom(new CustomEvent("Change Location Tapped").putCustomAttribute("Action","Current Location"));
 
                 //Resolve GPS\Network location
-                LocationUtils.resolveLocation(WeatherActivity.this, WeatherActivity.this);
+                LocationUtils.getInstance().resolveLocation(WeatherActivity.this, WeatherActivity.this);
+                zip = LocationUtils.getInstance().getZip(WeatherActivity.this);
                 reloadWeather();
             }
         });
@@ -199,7 +201,8 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
         if (requestCode == LocationUtils.REQUEST_LOCATION &&
                 grantResults[0] == 0 &&
                 grantResults[1] == 0) {
-            LocationUtils.resolveLocation(this, this);
+            LocationUtils.getInstance().resolveLocation(this, this);
+            zip = LocationUtils.getInstance().getZip(this);
             reloadWeather();
         }
     }

@@ -22,7 +22,20 @@ import java.util.Locale;
 public class LocationUtils {
     public static final int REQUEST_LOCATION = 0;
 
-    private static Location getLastBestLocation(Context context, Activity activity) {
+    private Location location;
+
+    private static LocationUtils instance = null;
+    protected LocationUtils() {
+        // Exists only to defeat instantiation.
+    }
+    public static LocationUtils getInstance() {
+        if(instance == null) {
+            instance = new LocationUtils();
+        }
+        return instance;
+    }
+
+    private Location getLastBestLocation(Context context, Activity activity) {
 
         if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -54,30 +67,27 @@ public class LocationUtils {
         }
     }
 
-    private static String getZipFromLocation(Location location, Context context) {
-        Geocoder gcd = new Geocoder(context, Locale.getDefault());
-        List<Address> addresses;
-        try {
-            addresses = gcd.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-            if (addresses.size() > 0) {
-                return addresses.get(0).getPostalCode();
+    public String getZip(Context context) {
+        if (location != null) {
+            Geocoder gcd = new Geocoder(context, Locale.getDefault());
+            List<Address> addresses;
+            try {
+                addresses = gcd.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                if (addresses.size() > 0) {
+                    return addresses.get(0).getPostalCode();
+                }
             }
-        }
-        catch (IOException e) {
-            e.printStackTrace();
+            catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         return "";
     }
 
-    public static String resolveLocation(Context context, Activity activity) {
+    public void resolveLocation(Context context, Activity activity) {
         //Resolve current location
         Location lastBest = getLastBestLocation(context, activity);
-        if (lastBest != null) {
-            String lastZip = getZipFromLocation(lastBest, context);
-            return lastZip;
-        }
-
-        return  "";
+        this.location = lastBest;
     }
 }
