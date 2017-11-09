@@ -15,6 +15,7 @@ import java.util.Date;
 public class WeatherConditions implements Parcelable {
     public Double currentTemperature;
 
+    public int conditionCode;
     public String currentConditions;
     public String location;
     public String iconId;
@@ -35,6 +36,7 @@ public class WeatherConditions implements Parcelable {
 
             JSONObject weatherObject = jsonObject.getJSONArray("weather").getJSONObject(0);
             currentConditions = weatherObject.getString("main");
+            conditionCode = weatherObject.getInt("id");
 
             location = jsonObject.getString("name");
 
