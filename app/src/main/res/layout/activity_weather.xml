@@ -19,7 +19,7 @@
         android:layout_marginTop="16dp"
         app:layout_constraintBottom_toTopOf="@+id/forecastFragment"
         app:layout_constraintTop_toTopOf="parent"
-        tools:layout="@layout/fragment_conditions"></fragment>
+        tools:layout="@layout/fragment_conditions" />
 
     <fragment
         android:id="@+id/forecastFragment"
@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:layout_marginTop="16dp"
-        tools:layout="@layout/fragment_conditions"></fragment>
+        tools:layout="@layout/fragment_conditions" />
 
     <fragment
         android:id="@+id/buttonsFragment"

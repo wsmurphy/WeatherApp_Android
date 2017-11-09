@@ -87,7 +87,6 @@ public class LocationUtils {
 
     public void resolveLocation(Context context, Activity activity) {
         //Resolve current location
-        Location lastBest = getLastBestLocation(context, activity);
-        this.location = lastBest;
+        this.location = getLastBestLocation(context, activity);
     }
 }

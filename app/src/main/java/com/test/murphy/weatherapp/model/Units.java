@@ -5,8 +5,8 @@ package com.test.murphy.weatherapp.model;
  */
 
 public enum Units {
-        Farenheight("° F", "imperial"),
-        Celcius("° C", "metric");
+        Fahrenheit("° F", "imperial"),
+        Celsius("° C", "metric");
 
         private String text;
         private String type;

@@ -3,6 +3,7 @@ apply plugin: 'io.fabric'
 
 repositories {
     maven { url 'https://maven.fabric.io/public' }
+    google()
 }
 
 android {
@@ -46,9 +47,9 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.2'
 
     compile('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
-        transitive = true;
+        transitive = true
     }
     compile('com.crashlytics.sdk.android:answers:1.4.1@aar') {
-        transitive = true;
+        transitive = true
     }
 }

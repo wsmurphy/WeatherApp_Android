@@ -3,7 +3,6 @@ package com.test.murphy.weatherapp;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Point;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -34,9 +33,7 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
 
     private String zip = "";
 
-    LocationManager locationManager;
-
-    private Units units = Units.Farenheight;
+    private Units units = Units.Fahrenheit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +55,7 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
         super.onResume();
 
         //If the zip code isn't set, resolve from device location
-        if (zip == "") {
+        if (zip.equals("")) {
             LocationUtils.getInstance().resolveLocation(this, this);
             zip = LocationUtils.getInstance().getZip(this);
         }
@@ -68,7 +65,7 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
 
     void reloadWeather() {
         try {
-            if (zip != "") {
+            if (!zip.equals("")) {
                 Connections.getInstance(WeatherActivity.this).getWeather(zip, units);
                 //Connections.getInstance(WeatherActivity.this).getForecastVolley(zip, units);
                 Connections.getInstance(WeatherActivity.this).getForecastOkHttp(zip, units);
@@ -170,9 +167,9 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
     @Override
     public void onUnitToggleTapped() {
         if (!buttonsFragment.isUnitsToggleChecked()) {
-            units = Units.Farenheight;
+            units = Units.Fahrenheit;
         } else {
-            units = Units.Celcius;
+            units = Units.Celsius;
         }
 
         Answers.getInstance().logCustom(new CustomEvent("Units Toggle Tapped").putCustomAttribute("Changed To", units.getText()));

@@ -29,7 +29,6 @@ import butterknife.ButterKnife;
 public class ForecastFragment extends Fragment {
     // the fragment initialization parameters
     private static final String ARG_FORECAST = "weatherForecast";
-    private static final String ARG_SCREEN_WIDTH = "screenWidth";
 
     private WeatherForecast weatherForecast;
 
@@ -74,8 +73,6 @@ public class ForecastFragment extends Fragment {
     }
 
     private void updateForecastLayout(Units units, int screenWidth) {
-        WeatherActivity activity = (WeatherActivity) getActivity();
-
         //Use lesser of 3 or the size of the forecast
         int columnCount = weatherForecast.forecast.length < 3 ? weatherForecast.forecast.length : 3;
 
@@ -94,7 +91,7 @@ public class ForecastFragment extends Fragment {
             first.height = gridLayout.getHeight() / 3;
 
             TextView forecastTime = new TextView(getActivity().getApplicationContext());
-            String formattedDate = dateFormat.format(weather.date).toString();
+            String formattedDate = dateFormat.format(weather.date);
             forecastTime.setText(formattedDate);
             forecastTime.setTextColor(Color.WHITE);
             forecastTime.setLayoutParams(first);
