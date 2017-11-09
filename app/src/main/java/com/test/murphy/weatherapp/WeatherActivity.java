@@ -194,7 +194,7 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        
+
         //Check if both requested permissions were granted. If denied, do nothing.
         if (requestCode == LocationUtils.REQUEST_LOCATION &&
                 grantResults[0] == 0 &&
