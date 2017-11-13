@@ -47,7 +47,7 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
         forecastFragment = (ForecastFragment) getFragmentManager().findFragmentById(R.id.forecastFragment);
         buttonsFragment = (ButtonsFragment) getFragmentManager().findFragmentById(R.id.buttonsFragment);
 
-        Connections.getInstance(this.getApplicationContext()).setDelegate(this);
+        WeatherManager.getInstance(this.getApplicationContext()).setDelegate(this);
     }
 
     @Override
@@ -66,9 +66,9 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
     void reloadWeather() {
         try {
             if (!zip.equals("")) {
-                Connections.getInstance(WeatherActivity.this).getWeather(zip, units);
-                //Connections.getInstance(WeatherActivity.this).getForecastVolley(zip, units);
-                Connections.getInstance(WeatherActivity.this).getForecast(zip, units);
+                WeatherManager.getInstance(WeatherActivity.this).getWeather(zip, units);
+                //WeatherManager.getInstance(WeatherActivity.this).getForecastVolley(zip, units);
+                WeatherManager.getInstance(WeatherActivity.this).getForecast(zip, units);
             }
         } catch (IOException e) {
             //TODO

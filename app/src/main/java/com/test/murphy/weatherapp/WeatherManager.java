@@ -21,22 +21,22 @@ import okhttp3.ResponseBody;
  * Created by wsmurphy on 10/25/17.
  */
 
-public class Connections {
+public class WeatherManager {
 
-    private static Connections mInstance;
+    private static WeatherManager mInstance;
 
     private Context mContext;
     private OkHttpClient client = new OkHttpClient();
     private ConnectionsDelegate delegate;
 
 
-    public Connections(final Context context) {
+    public WeatherManager(final Context context) {
         mContext = context;
     }
 
-    public static Connections getInstance(final Context context) {
+    public static WeatherManager getInstance(final Context context) {
         if (mInstance == null) {
-            mInstance = new Connections(context);
+            mInstance = new WeatherManager(context);
         }
         return mInstance;
     }
