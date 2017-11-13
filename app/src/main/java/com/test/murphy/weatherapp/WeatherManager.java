@@ -1,7 +1,10 @@
 package com.test.murphy.weatherapp;
 
-import android.content.Context;
+import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
 import com.test.murphy.weatherapp.model.Units;
 import com.test.murphy.weatherapp.model.WeatherConditions;
 import com.test.murphy.weatherapp.model.WeatherForecast;
@@ -25,29 +28,31 @@ public class WeatherManager {
 
     private static WeatherManager mInstance;
 
-    private Context mContext;
     private OkHttpClient client = new OkHttpClient();
-    private ConnectionsDelegate delegate;
 
+    public WeatherForecast forecast;
+    public WeatherConditions conditions;
+    private Units units = Units.Fahrenheit;
 
-    public WeatherManager(final Context context) {
-        mContext = context;
-    }
+    public WeatherManager() {}
 
-    public static WeatherManager getInstance(final Context context) {
+    public static WeatherManager getInstance() {
         if (mInstance == null) {
-            mInstance = new WeatherManager(context);
+            mInstance = new WeatherManager();
         }
         return mInstance;
     }
 
-    //TODO: This pattern seems weird in Java
-    //Am i forcing my iOS patterns on Android?
-    public void setDelegate(ConnectionsDelegate delegate) {
-        this.delegate = delegate;
+    public void setUnits(Units requestedUnits) {
+        units = requestedUnits;
+        Answers.getInstance().logCustom(new CustomEvent("Units Toggle Tapped").putCustomAttribute("Changed To", units.getText()));
     }
 
-    public void getWeather(String zip, Units units) {
+    public Units getUnits() {
+        return units;
+    }
+
+    public void getWeather(String zip) {
         String location = zip + ",us";
 
         HttpUrl.Builder builder = new HttpUrl.Builder();
@@ -77,8 +82,11 @@ public class WeatherManager {
 
                     try {
                         JSONObject jsonObject = new JSONObject(responseBody.string());
-                        WeatherConditions weather = new WeatherConditions(jsonObject);
-                        delegate.weatherSuccess(weather);
+                        conditions = new WeatherConditions(jsonObject);
+
+                        Intent successIntent = new Intent();
+                        successIntent.setAction("android.intent.action.WEATHER_CHANGED");
+                        LocalBroadcastManager.getInstance(WeatherApp.getContext()).sendBroadcast(successIntent);
                     } catch (JSONException e) {
                         //TODO
                     }
@@ -88,7 +96,7 @@ public class WeatherManager {
     }
 
 
-    public void getForecast(String zip, Units units) throws IOException {
+    public void getForecast(String zip) throws IOException {
         String location = zip + ",us";
 
         final OkHttpClient client = new OkHttpClient();
@@ -120,8 +128,11 @@ public class WeatherManager {
 
                     try {
                         JSONObject jsonObject = new JSONObject(responseBody.string());
-                        WeatherForecast forecast = new WeatherForecast(jsonObject);
-                        delegate.forecastSuccess(forecast);
+                        forecast = new WeatherForecast(jsonObject);
+
+                        Intent successIntent = new Intent();
+                        successIntent.setAction("android.intent.action.WEATHER_CHANGED");
+                        LocalBroadcastManager.getInstance(WeatherApp.getContext()).sendBroadcast(successIntent);
                     } catch (JSONException e) {
                         //TODO
                     }

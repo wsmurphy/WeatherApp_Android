@@ -1,11 +1,16 @@
 package com.test.murphy.weatherapp;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.widget.EditText;
@@ -15,8 +20,6 @@ import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 import com.test.murphy.weatherapp.model.Units;
-import com.test.murphy.weatherapp.model.WeatherConditions;
-import com.test.murphy.weatherapp.model.WeatherForecast;
 
 import java.io.IOException;
 
@@ -25,7 +28,17 @@ import io.fabric.sdk.android.Fabric;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 
-public class WeatherActivity extends AppCompatActivity implements ConnectionsDelegate, ButtonsFragment.OnFragmentInteractionListener, ActivityCompat.OnRequestPermissionsResultCallback {
+/*
+    Potential features:
+       - Drive Time: Show drive time to selected destination (daily commute)
+       - Let user choose days to show drive time (M-F only, etc)
+       - Let user choose time to show drive time (drive at 8 and 5, etc)
+       - Link out to google maps to begin drive
+       - What to wear (think Swackett) based on conditions (take a jacket!)
+ */
+
+
+public class WeatherActivity extends AppCompatActivity implements ButtonsFragment.OnFragmentInteractionListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
     ConditionsFragment conditionsFragment;
     ForecastFragment forecastFragment;
@@ -35,10 +48,31 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
 
     private Units units = Units.Fahrenheit;
 
+    private BroadcastReceiver mBroadcastReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
+
+        mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, final Intent intent) {
+                //This should be sent from a background thread. Return to main before updating UI
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (intent.getAction().equals("android.intent.action.WEATHER_CHANGED")) {
+                            conditionsFragment.setWeatherConditions(WeatherManager.getInstance().conditions);
+                            forecastFragment.setWeatherForecast(WeatherManager.getInstance().forecast, getScreenWidth());
+                        }
+                    }
+                });
+            }
+        };
+
+        IntentFilter filter = new IntentFilter("android.intent.action.WEATHER_CHANGED");
+        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, filter);
 
         Fabric.with(this, new Crashlytics());
         Fabric.with(this, new Answers());
@@ -46,8 +80,6 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
         conditionsFragment = (ConditionsFragment) getFragmentManager().findFragmentById(R.id.conditionsFragment);
         forecastFragment = (ForecastFragment) getFragmentManager().findFragmentById(R.id.forecastFragment);
         buttonsFragment = (ButtonsFragment) getFragmentManager().findFragmentById(R.id.buttonsFragment);
-
-        WeatherManager.getInstance(this.getApplicationContext()).setDelegate(this);
     }
 
     @Override
@@ -66,42 +98,13 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
     void reloadWeather() {
         try {
             if (!zip.equals("")) {
-                WeatherManager.getInstance(WeatherActivity.this).getWeather(zip, units);
-                //WeatherManager.getInstance(WeatherActivity.this).getForecastVolley(zip, units);
-                WeatherManager.getInstance(WeatherActivity.this).getForecast(zip, units);
+                WeatherManager.getInstance().getWeather(zip);
+                WeatherManager.getInstance().getForecast(zip);
             }
         } catch (IOException e) {
             //TODO
         }
 
-    }
-
-    public Units getUnits() {
-        return units;
-    }
-
-    @Override
-    public void weatherSuccess(final WeatherConditions conditions) {
-        //THis should be sent from a background thread. Return to main before updating UI
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                //execute code on main thread
-                conditionsFragment.setWeatherConditions(conditions , units);
-            }
-        });
-    }
-
-    @Override
-    public void forecastSuccess(final WeatherForecast forecast) {
-        //THis should be sent from a background thread. Return to main before updating UI
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                //execute code on main thread
-                forecastFragment.setWeatherForecast(forecast, units, getScreenWidth());
-            }
-        });
     }
 
     private void showLocationAlert() {
@@ -174,12 +177,10 @@ public class WeatherActivity extends AppCompatActivity implements ConnectionsDel
     @Override
     public void onUnitToggleTapped() {
         if (!buttonsFragment.isUnitsToggleChecked()) {
-            units = Units.Fahrenheit;
+            WeatherManager.getInstance().setUnits(Units.Fahrenheit);
         } else {
-            units = Units.Celsius;
+            WeatherManager.getInstance().setUnits(Units.Celsius);
         }
-
-        Answers.getInstance().logCustom(new CustomEvent("Units Toggle Tapped").putCustomAttribute("Changed To", units.getText()));
 
         //After settings changed, reload weather
         reloadWeather();

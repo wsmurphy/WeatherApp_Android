@@ -72,7 +72,9 @@ public class ForecastFragment extends Fragment {
         return rootView;
     }
 
-    private void updateForecastLayout(Units units, int screenWidth) {
+    private void updateForecastLayout(int screenWidth) {
+        Units units = WeatherManager.getInstance().getUnits();
+
         //Use lesser of 3 or the size of the forecast
         int columnCount = weatherForecast.forecast.length < 3 ? weatherForecast.forecast.length : 3;
 
@@ -90,7 +92,7 @@ public class ForecastFragment extends Fragment {
             first.width = screenWidth / 3;
             first.height = gridLayout.getHeight() / 3;
 
-            TextView forecastTime = new TextView(getActivity().getApplicationContext());
+            TextView forecastTime = new TextView(WeatherApp.getContext());
             String formattedDate = dateFormat.format(weather.date);
             forecastTime.setText(formattedDate);
             forecastTime.setTextColor(Color.WHITE);
@@ -105,7 +107,7 @@ public class ForecastFragment extends Fragment {
             second.width = screenWidth / 3;
             second.height = gridLayout.getHeight() / 3;
 
-            TextView forecastTemp = new TextView(getActivity().getApplicationContext());
+            TextView forecastTemp = new TextView(WeatherApp.getContext());
             forecastTemp.setText(weather.currentTemperature.toString() + units.getText());
             forecastTemp.setTextColor(Color.WHITE);
             forecastTemp.setLayoutParams(second);
@@ -120,7 +122,7 @@ public class ForecastFragment extends Fragment {
             third.height = gridLayout.getHeight() / 3;
 
 
-            TextView forecastConditions = new TextView(getActivity().getApplicationContext());
+            TextView forecastConditions = new TextView(WeatherApp.getContext());
             forecastConditions.setText(weather.currentConditions);
             forecastConditions.setTextColor(Color.WHITE);
             forecastConditions.setLayoutParams(third);
@@ -130,8 +132,10 @@ public class ForecastFragment extends Fragment {
         }
     }
 
-    public void setWeatherForecast(WeatherForecast weatherForecast, Units units, int screenWidth) {
-        this.weatherForecast = weatherForecast;
-        updateForecastLayout(units, screenWidth);
+    public void setWeatherForecast(WeatherForecast weatherForecast, int screenWidth) {
+        if (weatherForecast != null) {
+            this.weatherForecast = weatherForecast;
+            updateForecastLayout(screenWidth);
+        }
     }
 }

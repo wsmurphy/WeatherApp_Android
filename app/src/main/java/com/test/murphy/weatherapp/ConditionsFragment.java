@@ -61,12 +61,16 @@ public class ConditionsFragment extends Fragment {
 
     }
 
-    public void setWeatherConditions(WeatherConditions weatherConditions, Units units) {
-        this.weatherConditions = weatherConditions;
-        updateConditionsLayout(units);
+    public void setWeatherConditions(WeatherConditions weatherConditions) {
+        if (weatherConditions != null) {
+            this.weatherConditions = weatherConditions;
+            updateConditionsLayout();
+        }
     }
 
-    private void updateConditionsLayout(Units units) {
+    private void updateConditionsLayout() {
+        Units units = WeatherManager.getInstance().getUnits();
+
         temperatureText.setText(String.valueOf(weatherConditions.currentTemperature) + units.getText());
         conditionsText.setText(weatherConditions.currentConditions);
         locationText.setText(weatherConditions.location);
