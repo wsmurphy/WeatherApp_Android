@@ -220,7 +220,7 @@ public class CurrentFragment extends Fragment implements ActivityCompat.OnReques
 
     @OnClick(R.id.aboutButton)
     public void aboutButtonTapped() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(WeatherApp.getContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("About");
         builder.setMessage("Weather icons courtesy of Icons8 under CC-BY ND 3.0 license.\nhttps://icons8.com/");
         builder.setPositiveButton("OK",  new DialogInterface.OnClickListener() {
