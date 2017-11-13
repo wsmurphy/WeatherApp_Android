@@ -11,6 +11,9 @@ import android.location.LocationManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
@@ -67,9 +70,9 @@ public class LocationUtils {
         }
     }
 
-    public String getZip(Context context) {
+    public String getZip() {
         if (location != null) {
-            Geocoder gcd = new Geocoder(context, Locale.getDefault());
+            Geocoder gcd = new Geocoder(WeatherApp.getContext(), Locale.getDefault());
             List<Address> addresses;
             try {
                 addresses = gcd.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
@@ -85,8 +88,14 @@ public class LocationUtils {
         return "";
     }
 
-    public void resolveLocation(Context context, Activity activity) {
+    public void resolveLocation(Activity activity) {
         //Resolve current location
-        this.location = getLastBestLocation(context, activity);
+        Location resolvedLocation = getLastBestLocation(WeatherApp.getContext(), activity);
+
+        if (resolvedLocation == null) {
+            Answers.getInstance().logCustom(new CustomEvent("Failed to resolve location"));
+        }
+
+        this.location = resolvedLocation;
     }
 }

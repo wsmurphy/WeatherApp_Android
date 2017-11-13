@@ -34,6 +34,8 @@ public class WeatherManager {
     public WeatherConditions conditions;
     private Units units = Units.Fahrenheit;
 
+    private String zip = "";
+
     public WeatherManager() {}
 
     public static WeatherManager getInstance() {
@@ -43,16 +45,39 @@ public class WeatherManager {
         return mInstance;
     }
 
+    public void setZip(String requestedZip) {
+        zip = requestedZip;
+
+        reloadWeather();
+    }
+
+    public String getZip() {
+        return zip;
+    }
+
     public void setUnits(Units requestedUnits) {
         units = requestedUnits;
         Answers.getInstance().logCustom(new CustomEvent("Units Toggle Tapped").putCustomAttribute("Changed To", units.getText()));
+
+        //Reload weather
+        reloadWeather();
+    }
+
+    public void reloadWeather() {
+        try {
+            getWeather();
+            getForecast();
+        } catch (IOException e) {
+            //TODO
+        }
+
     }
 
     public Units getUnits() {
         return units;
     }
 
-    public void getWeather(String zip) {
+    public void getWeather() {
         String location = zip + ",us";
 
         HttpUrl.Builder builder = new HttpUrl.Builder();
@@ -96,7 +121,7 @@ public class WeatherManager {
     }
 
 
-    public void getForecast(String zip) throws IOException {
+    public void getForecast() throws IOException {
         String location = zip + ",us";
 
         final OkHttpClient client = new OkHttpClient();
