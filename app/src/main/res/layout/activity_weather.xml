@@ -1,39 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/background_dark"
-    tools:context="com.test.murphy.weatherapp.WeatherActivity"
-    tools:layout_editor_absoluteY="81dp"
-    tools:layout_editor_absoluteX="0dp"
-    android:orientation="vertical">
+    tools:context="com.test.murphy.weatherapp.WeatherActivity">
 
     <fragment
         android:id="@+id/conditionsFragment"
-        class="com.test.murphy.weatherapp.ConditionsFragment"
+        class="com.test.murphy.weatherapp.CurrentFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/forecastFragment"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout="@layout/fragment_conditions" />
+        android:layout_height="match_parent"
+        tools:layout="@layout/fragment_current" />
 
-    <fragment
-        android:id="@+id/forecastFragment"
-        class="com.test.murphy.weatherapp.ForecastFragment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:layout_marginTop="16dp"
-        tools:layout="@layout/fragment_conditions" />
-
-    <fragment
-        android:id="@+id/buttonsFragment"
-        android:name="com.test.murphy.weatherapp.ButtonsFragment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>
