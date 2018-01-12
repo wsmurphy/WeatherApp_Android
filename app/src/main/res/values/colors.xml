@@ -1,3 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="darkBlue">#011627</color>
+    <color name="salmon">#EB5160</color>
+    <color name="turcoise">#2EC4B6</color>
+    <color name="ice">#F6F7F8</color>
+    <color name="skyBlue">#20A4F3</color>
+
+    <color name="background">@color/darkBlue</color>
+    <color name="text">@color/ice</color>
+    <color name="buttonBackground">@color/skyBlue</color>
 </resources>
