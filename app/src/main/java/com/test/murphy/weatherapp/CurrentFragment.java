@@ -107,9 +107,9 @@ public class CurrentFragment extends Fragment implements ActivityCompat.OnReques
 
         Units units = WeatherManager.getInstance().getUnits();
 
-        temperatureText.setText(String.valueOf(weatherConditions.currentTemperature) + units.getText());
-        conditionsText.setText(weatherConditions.currentConditions);
-        locationText.setText(weatherConditions.location);
+        temperatureText.setText(String.valueOf(weatherConditions.getCurrentTemperature()) + units.getText());
+        conditionsText.setText(weatherConditions.getCurrentConditions());
+        locationText.setText(weatherConditions.getLocation());
         updateConditionsImage();
     }
 
@@ -125,30 +125,30 @@ public class CurrentFragment extends Fragment implements ActivityCompat.OnReques
         if (conditionsImage.getImageAlpha() == 0) {
             conditionsImage.setImageAlpha(1);
         }
-        if (isBetween(weatherConditions.conditionCode, 200, 299)) {
+        if (isBetween(weatherConditions.getConditionCode(), 200, 299)) {
             //Storm
             conditionsImage.setImageResource(R.drawable.icons8storm);
-        } else if (isBetween(weatherConditions.conditionCode, 300, 599)) {
+        } else if (isBetween(weatherConditions.getConditionCode(), 300, 599)) {
             //Drizzle\Rain
             conditionsImage.setImageResource(R.drawable.icons8rain);
-        } else if (isBetween(weatherConditions.conditionCode, 600, 699)) {
+        } else if (isBetween(weatherConditions.getConditionCode(), 600, 699)) {
             //Snow
             conditionsImage.setImageResource(R.drawable.icons8snow);
-        } else if (isBetween(weatherConditions.conditionCode, 700, 799)) {
+        } else if (isBetween(weatherConditions.getConditionCode(), 700, 799)) {
             //Atmosphere - Mist, smoke, etc
             conditionsImage.setImageResource(R.drawable.icons8haze);
-        }  else if (weatherConditions.conditionCode == 800) {
+        }  else if (weatherConditions.getConditionCode() == 800) {
             //Clear sky
             conditionsImage.setImageResource(R.drawable.icons8sun);
-        } else if (isBetween(weatherConditions.conditionCode, 801, 899)) {
+        } else if (isBetween(weatherConditions.getConditionCode(), 801, 899)) {
             //Clouds
             conditionsImage.setImageResource(R.drawable.icons8clouds);
-        } else if (isBetween(weatherConditions.conditionCode, 900, 999)) {
+        } else if (isBetween(weatherConditions.getConditionCode(), 900, 999)) {
             //Severe - No icons for these, hide the icon
             conditionsImage.setImageAlpha(0);
         }
 
-        conditionsImage.setContentDescription(weatherConditions.currentConditions);
+        conditionsImage.setContentDescription(weatherConditions.getCurrentConditions());
     }
 
     private void updateForecastLayout() {
@@ -162,7 +162,7 @@ public class CurrentFragment extends Fragment implements ActivityCompat.OnReques
         int screenWidth = getScreenWidth();
 
         //Use lesser of 3 or the size of the forecast
-        int columnCount = weatherForecast.forecast.length < 3 ? weatherForecast.forecast.length : 3;
+        int columnCount = weatherForecast.getForecast().length < 3 ? weatherForecast.getForecast().length : 3;
 
         gridLayout.setColumnCount(columnCount);
         gridLayout.setRowCount(3);
@@ -170,7 +170,7 @@ public class CurrentFragment extends Fragment implements ActivityCompat.OnReques
         gridLayout.removeAllViewsInLayout();
 
         for (int i = 0; i < 3; i++) {
-            WeatherConditions weather = weatherForecast.forecast[i];
+            WeatherConditions weather = weatherForecast.getForecast()[i];
 
 
             //Time
@@ -179,7 +179,7 @@ public class CurrentFragment extends Fragment implements ActivityCompat.OnReques
             first.height = gridLayout.getHeight() / 3;
 
             TextView forecastTime = new TextView(WeatherApp.getContext());
-            String formattedDate = dateFormat.format(weather.date);
+            String formattedDate = dateFormat.format(weather.getDate());
             forecastTime.setText(formattedDate);
             forecastTime.setTextColor(Color.WHITE);
             forecastTime.setLayoutParams(first);
@@ -194,7 +194,7 @@ public class CurrentFragment extends Fragment implements ActivityCompat.OnReques
             second.height = gridLayout.getHeight() / 3;
 
             TextView forecastTemp = new TextView(WeatherApp.getContext());
-            forecastTemp.setText(weather.currentTemperature.toString() + units.getText());
+            forecastTemp.setText(String.format("%.2f", weather.getCurrentTemperature()) + units.getText());
             forecastTemp.setTextColor(Color.WHITE);
             forecastTemp.setLayoutParams(second);
             forecastTemp.setGravity(Gravity.CENTER);
@@ -209,7 +209,7 @@ public class CurrentFragment extends Fragment implements ActivityCompat.OnReques
 
 
             TextView forecastConditions = new TextView(WeatherApp.getContext());
-            forecastConditions.setText(weather.currentConditions);
+            forecastConditions.setText(weather.getCurrentConditions());
             forecastConditions.setTextColor(Color.WHITE);
             forecastConditions.setLayoutParams(third);
             forecastConditions.setGravity(Gravity.CENTER);
