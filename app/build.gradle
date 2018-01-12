@@ -36,9 +36,6 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
 
-    compile 'com.jakewharton:butterknife:8.8.1'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
-
     compile 'com.squareup.okhttp3:okhttp:3.9.0'
 
     compile('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
@@ -48,5 +45,6 @@ dependencies {
         transitive = true
     }
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    apply plugin: 'kotlin-android-extensions'
 
 }
