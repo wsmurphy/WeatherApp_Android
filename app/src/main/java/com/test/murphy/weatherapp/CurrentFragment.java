@@ -100,7 +100,7 @@ public class CurrentFragment extends Fragment implements ActivityCompat.OnReques
     }
 
     private void updateConditionsLayout() {
-        WeatherConditions weatherConditions = WeatherManager.getInstance().conditions;
+        WeatherConditions weatherConditions = WeatherManager.getInstance().getConditions();
         if (weatherConditions == null) {
             return;
         }
@@ -116,7 +116,7 @@ public class CurrentFragment extends Fragment implements ActivityCompat.OnReques
     //Update the conditions image based on the condition code
     //Images are sourced from Icons8 http://icons8.com under CC-BY ND 3.0 license
     private void updateConditionsImage() {
-        WeatherConditions weatherConditions = WeatherManager.getInstance().conditions;
+        WeatherConditions weatherConditions = WeatherManager.getInstance().getConditions();
         if (weatherConditions == null) {
             return;
         }
@@ -152,7 +152,7 @@ public class CurrentFragment extends Fragment implements ActivityCompat.OnReques
     }
 
     private void updateForecastLayout() {
-        WeatherForecast weatherForecast = WeatherManager.getInstance().forecast;
+        WeatherForecast weatherForecast = WeatherManager.getInstance().getForecast();
         if (weatherForecast == null) {
             return;
         }
@@ -194,7 +194,7 @@ public class CurrentFragment extends Fragment implements ActivityCompat.OnReques
             second.height = gridLayout.getHeight() / 3;
 
             TextView forecastTemp = new TextView(WeatherApp.getContext());
-            forecastTemp.setText(String.format("%.2f", weather.getCurrentTemperature()) + units.getText());
+            forecastTemp.setText(String.format("%.2f %s", weather.getCurrentTemperature(), units.getText()));
             forecastTemp.setTextColor(Color.WHITE);
             forecastTemp.setLayoutParams(second);
             forecastTemp.setGravity(Gravity.CENTER);
