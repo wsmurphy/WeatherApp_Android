@@ -107,7 +107,8 @@ public class CurrentFragment extends Fragment implements ActivityCompat.OnReques
 
         Units units = WeatherManager.getInstance().getUnits();
 
-        temperatureText.setText(String.valueOf(weatherConditions.getCurrentTemperature()) + units.getText());
+        String tempString = String.format("%f %s", weatherConditions.getCurrentTemperature()) + units.getText();
+        temperatureText.setText(tempString);
         conditionsText.setText(weatherConditions.getCurrentConditions());
         locationText.setText(weatherConditions.getLocation());
         updateConditionsImage();
