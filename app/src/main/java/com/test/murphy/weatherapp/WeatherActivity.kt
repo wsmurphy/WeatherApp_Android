@@ -1,11 +1,9 @@
 package com.test.murphy.weatherapp
 
+import android.app.Activity
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
-
 import io.fabric.sdk.android.Fabric
 
 
@@ -19,7 +17,7 @@ import io.fabric.sdk.android.Fabric
  */
 
 
-class WeatherActivity : AppCompatActivity() {
+class WeatherActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
