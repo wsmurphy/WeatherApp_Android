@@ -15,10 +15,6 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 
-/**
- * Created by wsmurphy on 10/25/17.
- */
-
 class WeatherManager private constructor() {
     init { println("This ($this) is a singleton") }
 
@@ -87,7 +83,7 @@ class WeatherManager private constructor() {
 
                         val successIntent = Intent()
                         successIntent.action = "android.intent.action.WEATHER_CHANGED"
-                        LocalBroadcastManager.getInstance(WeatherApp.getContext()).sendBroadcast(successIntent)
+                        LocalBroadcastManager.getInstance(WeatherApp.context).sendBroadcast(successIntent)
                     } catch (e: JSONException) {
                         //TODO
                     }
@@ -135,7 +131,7 @@ class WeatherManager private constructor() {
 
                         val successIntent = Intent()
                         successIntent.action = "android.intent.action.WEATHER_CHANGED"
-                        LocalBroadcastManager.getInstance(WeatherApp.getContext()).sendBroadcast(successIntent)
+                        LocalBroadcastManager.getInstance(WeatherApp.context).sendBroadcast(successIntent)
                     } catch (e: JSONException) {
                         //TODO
                     }

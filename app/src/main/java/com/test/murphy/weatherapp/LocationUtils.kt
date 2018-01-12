@@ -15,10 +15,6 @@ import com.crashlytics.android.answers.CustomEvent
 import java.io.IOException
 import java.util.*
 
-/**
- * Created by wsmurphy on 10/31/17.
- */
-
 class LocationUtils private constructor() {
 
     private var location: Location? = null
@@ -26,7 +22,7 @@ class LocationUtils private constructor() {
     val zip: String
         get() {
             if (location != null) {
-                val gcd = Geocoder(WeatherApp.getContext(), Locale.getDefault())
+                val gcd = Geocoder(WeatherApp.context, Locale.getDefault())
                 val addresses: List<Address>
                 try {
                     addresses = gcd.getFromLocation(location!!.latitude, location!!.longitude, 1)
@@ -69,7 +65,7 @@ class LocationUtils private constructor() {
 
     fun resolveLocation(activity: Activity) {
         //Resolve current location
-        val resolvedLocation = getLastBestLocation(WeatherApp.getContext(), activity)
+        val resolvedLocation = getLastBestLocation(WeatherApp.context, activity)
 
         if (resolvedLocation == null) {
             Answers.getInstance().logCustom(CustomEvent("Failed to resolve location"))
