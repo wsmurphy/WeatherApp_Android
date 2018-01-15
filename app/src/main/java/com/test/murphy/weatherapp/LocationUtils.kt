@@ -59,7 +59,7 @@ class LocationUtils private constructor() {
                 locationTimeNet = locationNet.time
             }
 
-            return if (locationTimeGPS < locationTimeNet) locationGPS else locationNet
+            return if (locationTimeGPS > locationTimeNet) locationGPS else locationNet
         }
     }
 
