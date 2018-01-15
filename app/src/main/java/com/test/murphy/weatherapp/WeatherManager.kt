@@ -16,7 +16,6 @@ import org.json.JSONObject
 import java.io.IOException
 
 class WeatherManager private constructor() {
-    init { println("This ($this) is a singleton") }
 
     private val client = OkHttpClient()
 
