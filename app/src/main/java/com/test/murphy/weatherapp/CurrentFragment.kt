@@ -82,7 +82,7 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
         val tempString = String.format("%.2f %s", weatherConditions.currentTemperature, units.text)
         temperatureText.text = tempString
         conditionsText.text = weatherConditions.currentConditions
-        locationText.text = weatherConditions.location
+        locationText.text =  String.format("%s (%s)", weatherConditions.location, WeatherManager.instance.zip)
         updateConditionsImage()
     }
 
@@ -115,20 +115,20 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
 
         val screenWidth = screenWidth
 
-        //Use lesser of 3 or the size of the forecast
-        val columnCount = if (weatherForecast.forecast.size < 3) weatherForecast.forecast.size else 3
+        //Scroll the entire forecast
+        val columnCount = weatherForecast.forecast.size
 
         forecastGrid.columnCount = columnCount
         forecastGrid.rowCount = 3
         forecastGrid.orientation = GridLayout.VERTICAL
         forecastGrid.removeAllViewsInLayout()
 
-        for (i in 0..2) {
+        for (i in 0 until columnCount) {
             val weather = weatherForecast.forecast[i]
 
             //Time
             val first = GridLayout.LayoutParams(GridLayout.spec(0), GridLayout.spec(i))
-            first.width = screenWidth / 3
+            first.width = screenWidth / 5
             first.height = forecastGrid.height / 3
 
             val forecastTime = TextView(WeatherApp.context)
@@ -142,7 +142,7 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
 
             //Temp
             val second = GridLayout.LayoutParams(GridLayout.spec(1), GridLayout.spec(i))
-            second.width = screenWidth / 3
+            second.width = screenWidth / 5
             second.height = forecastGrid.height / 3
 
             val forecastTemp = TextView(WeatherApp.context)
@@ -155,7 +155,7 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
 
             //Conditions
             val third = GridLayout.LayoutParams(GridLayout.spec(2), GridLayout.spec(i))
-            third.width = screenWidth / 3
+            third.width = screenWidth / 5
             third.height = forecastGrid.height / 3
 
             val forecastConditions = TextView(WeatherApp.context)
