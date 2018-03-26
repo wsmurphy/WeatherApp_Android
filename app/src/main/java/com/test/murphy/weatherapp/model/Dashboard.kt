@@ -11,15 +11,21 @@ import org.json.JSONObject
 
 class Dashboard() : Parcelable {
     var conditions: WeatherConditions? = null
+    var fact: String? = null
 
     constructor(parcel: Parcel) : this() {
         conditions = parcel.readParcelable(WeatherConditions.javaClass.classLoader)
+        fact = parcel.readString()
     }
 
     constructor(jsonObject: JSONObject) : this() {
         try {
             val weather = jsonObject.getJSONObject("WeatherConditions")
             conditions = WeatherConditions(weather)
+
+            val factJson = jsonObject.getJSONObject("Fact")
+            fact = factJson.getString("Value")
+
         } catch (je: JSONException) {
             //TODO
         } catch (nfe: NumberFormatException) {
@@ -29,6 +35,7 @@ class Dashboard() : Parcelable {
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeParcelable(conditions, flags)
+        parcel.writeString(fact)
     }
 
     override fun describeContents(): Int {

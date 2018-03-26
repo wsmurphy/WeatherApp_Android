@@ -90,6 +90,7 @@ class WeatherManager private constructor() {
     }
 
 
+    //TODO: Combine this call with above call in BFF backend
     @Throws(IOException::class)
     private fun loadForecast() {
         val location = this.zip + ",us"

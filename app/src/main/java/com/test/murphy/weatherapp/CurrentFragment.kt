@@ -66,6 +66,10 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
                         updateConditionsLayout()
                         updateConditionsImage()
                         updateForecastLayout()
+
+                        //TODO: Parse and insert UV Index info to UI
+
+                        updateFact()
                     }
                 }
             }
@@ -175,6 +179,13 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
 
             forecastGrid.addView(forecastConditions, third)
         }
+    }
+
+    fun updateFact() {
+        val info = WeatherManager.instance.dashboardInfo ?: return
+        val fact = info.fact ?: return
+
+        factTextView.text = "Fact: " + fact
     }
 
     fun aboutButtonTapped() {
