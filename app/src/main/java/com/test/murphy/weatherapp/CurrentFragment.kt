@@ -75,27 +75,32 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
     }
 
     private fun updateConditionsLayout() {
-        val weatherConditions = WeatherManager.instance.conditions ?: return
+        val info = WeatherManager.instance.dashboardInfo ?: return
+        val conditions = info.conditions ?: return
 
         val units = WeatherManager.instance.units
 
-        val tempString = String.format("%.2f %s", weatherConditions.currentTemperature, units.text)
+        val tempString = when (units) {
+            Units.Fahrenheit -> String.format("%.2f %s", conditions.currentTemperatureF, units.text)
+            Units.Celsius -> String.format("%.2f %s", conditions.currentTemperatureC, units.text)
+        }
+
         temperatureText.text = tempString
-        conditionsText.text = weatherConditions.currentConditions
-        locationText.text =  String.format("%s (%s)", weatherConditions.location, WeatherManager.instance.zip)
+        conditionsText.text = conditions.currentConditions
+        locationText.text =  String.format("%s (%s)", conditions.location, WeatherManager.instance.zip)
         updateConditionsImage()
     }
 
     //Update the conditions image based on the condition code
     //Images are sourced from Icons8 http://icons8.com under CC-BY ND 3.0 license
     private fun updateConditionsImage() {
-        val weatherConditions = WeatherManager.instance.conditions ?: return
+        val conditions = WeatherManager.instance.dashboardInfo?.conditions ?: return
 
         //If image was previously hidden, show it
         if (conditionsImage.imageAlpha == 0) {
             conditionsImage.imageAlpha = 1
         }
-        when (weatherConditions.conditionCode) {
+        when (conditions.conditionCode) {
             in 200..299 -> conditionsImage.setImageResource(R.drawable.icons8storm) //Storm
             in 300..599 -> conditionsImage.setImageResource(R.drawable.icons8rain) //Drizzle\Rain
             in 600..699 -> conditionsImage.setImageResource(R.drawable.icons8snow) //Snow
@@ -105,7 +110,7 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
             else -> conditionsImage.imageAlpha = 0 //No icons for these, hide the icon
         }
 
-        conditionsImage.contentDescription = weatherConditions.currentConditions
+        conditionsImage.contentDescription = conditions.currentConditions
     }
 
     private fun updateForecastLayout() {
@@ -146,7 +151,11 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
             second.height = forecastGrid.height / 3
 
             val forecastTemp = TextView(WeatherApp.context)
-            forecastTemp.text = String.format("%.2f %s", weather.currentTemperature, units.text)
+            forecastTemp.text = when (units) {
+                Units.Fahrenheit -> String.format("%.2f %s", weather.currentTemperatureF, units.text)
+                Units.Celsius -> String.format("%.2f %s", weather.currentTemperatureC, units.text)
+            }
+
             forecastTemp.setTextColor(Color.WHITE)
             forecastTemp.layoutParams = second
             forecastTemp.gravity = Gravity.CENTER

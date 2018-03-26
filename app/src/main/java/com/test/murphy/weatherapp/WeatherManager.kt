@@ -4,8 +4,8 @@ import android.content.Intent
 import android.support.v4.content.LocalBroadcastManager
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.CustomEvent
+import com.test.murphy.weatherapp.model.Dashboard
 import com.test.murphy.weatherapp.model.Units
-import com.test.murphy.weatherapp.model.WeatherConditions
 import com.test.murphy.weatherapp.model.WeatherForecast
 import okhttp3.Call
 import okhttp3.Callback
@@ -20,14 +20,16 @@ class WeatherManager private constructor() {
     private val client = OkHttpClient()
 
     var forecast: WeatherForecast? = null
-    var conditions: WeatherConditions? = null
+    var dashboardInfo: Dashboard? = null
 
     //Reload weather
     var units = Units.Fahrenheit
         set(requestedUnits) {
             field = requestedUnits
             Answers.getInstance().logCustom(CustomEvent("Units Toggle Tapped").putCustomAttribute("Changed To", this.units.text))
-            reloadWeather()
+            //No reason to make new network call, just tell UI that weather changed
+//            reloadWeather()
+            sendWeatherChangedIntent()
         }
 
     var zip = ""
@@ -39,7 +41,7 @@ class WeatherManager private constructor() {
 
     fun reloadWeather() {
         try {
-            loadWeather()
+            loadDashboard()
             loadForecast()
         } catch (e: IOException) {
             //TODO
@@ -47,18 +49,16 @@ class WeatherManager private constructor() {
 
     }
 
-    private fun loadWeather() {
-        val location = this.zip + ",us"
+    //Call BFF to get info for dashboard
+    //Temperatures will be returned in F and converted to C in WeatherConditions object if needed
+    private fun loadDashboard() {
+        val location = this.zip
 
         val builder = HttpUrl.Builder()
         builder.scheme("http")
-                .host("api.openweathermap.org")
-                .addPathSegment("data")
-                .addPathSegment("2.5")
-                .addPathSegment("weather")
+                .host("immense-depths-81664.herokuapp.com")
+                .addPathSegment("dashboard")
                 .addQueryParameter("zip", location)
-                .addQueryParameter("units", this.units.type)
-                .addQueryParameter("APPID", "b4608d4fcb4accac0a8cc2ea6949eeb5")
 
         val request = okhttp3.Request.Builder()
                 .url(builder.build())
@@ -78,11 +78,9 @@ class WeatherManager private constructor() {
 
                     try {
                         val jsonObject = JSONObject(responseBody.string())
-                        conditions = WeatherConditions(jsonObject)
+                        dashboardInfo = Dashboard(jsonObject)
 
-                        val successIntent = Intent()
-                        successIntent.action = "android.intent.action.WEATHER_CHANGED"
-                        LocalBroadcastManager.getInstance(WeatherApp.context).sendBroadcast(successIntent)
+                        sendWeatherChangedIntent()
                     } catch (e: JSONException) {
                         //TODO
                     }
@@ -105,7 +103,7 @@ class WeatherManager private constructor() {
                 .addPathSegment("2.5")
                 .addPathSegment("forecast")
                 .addQueryParameter("zip", location)
-                .addQueryParameter("units", this.units.type)
+                .addQueryParameter("units", Units.Fahrenheit.type) //Always request F and convert to C in UI
                 .addQueryParameter("APPID", "b4608d4fcb4accac0a8cc2ea6949eeb5")
 
         val request = okhttp3.Request.Builder()
@@ -128,15 +126,19 @@ class WeatherManager private constructor() {
                         val jsonObject = JSONObject(responseBody.string())
                         forecast = WeatherForecast(jsonObject)
 
-                        val successIntent = Intent()
-                        successIntent.action = "android.intent.action.WEATHER_CHANGED"
-                        LocalBroadcastManager.getInstance(WeatherApp.context).sendBroadcast(successIntent)
+                        sendWeatherChangedIntent()
                     } catch (e: JSONException) {
                         //TODO
                     }
                 }
             }
         })
+    }
+
+    private fun sendWeatherChangedIntent() {
+        val successIntent = Intent()
+        successIntent.action = "android.intent.action.WEATHER_CHANGED"
+        LocalBroadcastManager.getInstance(WeatherApp.context).sendBroadcast(successIntent)
     }
 
 
