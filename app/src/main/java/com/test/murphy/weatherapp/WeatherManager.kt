@@ -42,7 +42,6 @@ class WeatherManager private constructor() {
     fun reloadWeather() {
         try {
             loadDashboard()
-            loadForecast()
         } catch (e: IOException) {
             //TODO
         }
@@ -79,53 +78,6 @@ class WeatherManager private constructor() {
                     try {
                         val jsonObject = JSONObject(responseBody.string())
                         dashboardInfo = Dashboard(jsonObject)
-
-                        sendWeatherChangedIntent()
-                    } catch (e: JSONException) {
-                        //TODO
-                    }
-                }
-            }
-        })
-    }
-
-
-    //TODO: Combine this call with above call in BFF backend
-    @Throws(IOException::class)
-    private fun loadForecast() {
-        val location = this.zip + ",us"
-
-        val client = OkHttpClient()
-
-        val builder = HttpUrl.Builder()
-        builder.scheme("http")
-                .host("api.openweathermap.org")
-                .addPathSegment("data")
-                .addPathSegment("2.5")
-                .addPathSegment("forecast")
-                .addQueryParameter("zip", location)
-                .addQueryParameter("units", Units.Fahrenheit.type) //Always request F and convert to C in UI
-                .addQueryParameter("APPID", "b4608d4fcb4accac0a8cc2ea6949eeb5")
-
-        val request = okhttp3.Request.Builder()
-                .url(builder.build())
-                .header("Accept", "application/json")
-                .build()
-
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()
-            }
-
-            @Throws(IOException::class)
-            override fun onResponse(call: Call, response: okhttp3.Response) {
-                response.body()!!.use { responseBody ->
-                    if (!response.isSuccessful) throw IOException("Unexpected code " + response)
-
-                    try {
-                        val jsonObject = JSONObject(responseBody.string())
-                        forecast = WeatherForecast(jsonObject)
 
                         sendWeatherChangedIntent()
                     } catch (e: JSONException) {

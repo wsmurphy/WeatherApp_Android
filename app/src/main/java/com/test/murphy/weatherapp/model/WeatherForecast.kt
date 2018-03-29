@@ -10,18 +10,15 @@ import java.util.*
  */
 
 
-class WeatherForecast(var location: String, var forecast: Array<WeatherConditions>) : Parcelable {
+class WeatherForecast(var forecast: Array<WeatherConditions>) : Parcelable {
 
     constructor(parcel: Parcel) : this(
-            parcel.readString(),
             parcel.createTypedArray(WeatherConditions.CREATOR))
 
     constructor(jsonObject: JSONObject) : this(
-            jsonObject.getString("city"),
             WeatherForecast.parseForecastJSON(jsonObject))
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(location)
         parcel.writeTypedArray(forecast, flags)
     }
 

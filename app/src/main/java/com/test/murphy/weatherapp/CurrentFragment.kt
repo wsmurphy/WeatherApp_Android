@@ -118,7 +118,8 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
     }
 
     private fun updateForecastLayout() {
-        val weatherForecast = WeatherManager.instance.forecast ?: return
+        val info = WeatherManager.instance.dashboardInfo ?: return
+        val weatherForecast = info.forecast ?: return
 
         val units = WeatherManager.instance.units
 

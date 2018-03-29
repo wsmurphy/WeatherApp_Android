@@ -11,6 +11,7 @@ import org.json.JSONObject
 
 class Dashboard() : Parcelable {
     var conditions: WeatherConditions? = null
+    var forecast: WeatherForecast? = null
     var fact: String? = null
 
     constructor(parcel: Parcel) : this() {
@@ -23,8 +24,12 @@ class Dashboard() : Parcelable {
             val weather = jsonObject.getJSONObject("WeatherConditions")
             conditions = WeatherConditions(weather)
 
+            val forecastJSON = jsonObject.getJSONObject("WeatherForecast")
+            forecast = WeatherForecast(forecastJSON)
+
             val factJson = jsonObject.getJSONObject("Fact")
             fact = factJson.getString("Value")
+
 
         } catch (je: JSONException) {
             //TODO
