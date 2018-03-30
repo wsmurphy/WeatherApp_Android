@@ -66,10 +66,8 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
                         updateConditionsLayout()
                         updateConditionsImage()
                         updateForecastLayout()
-
-                        //TODO: Parse and insert UV Index info to UI
-
                         updateFact()
+                        updateAirQuality()
                     }
                 }
             }
@@ -85,8 +83,8 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
         val units = WeatherManager.instance.units
 
         val tempString = when (units) {
-            Units.Fahrenheit -> String.format("%.2f %s", conditions.currentTemperatureF, units.text)
-            Units.Celsius -> String.format("%.2f %s", conditions.currentTemperatureC, units.text)
+            Units.Fahrenheit -> String.format("%.1f %s", conditions.currentTemperatureF, units.text)
+            Units.Celsius -> String.format("%.1f %s", conditions.currentTemperatureC, units.text)
         }
 
         temperatureText.text = tempString
@@ -157,8 +155,8 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
 
             val forecastTemp = TextView(WeatherApp.context)
             forecastTemp.text = when (units) {
-                Units.Fahrenheit -> String.format("%.2f %s", weather.currentTemperatureF, units.text)
-                Units.Celsius -> String.format("%.2f %s", weather.currentTemperatureC, units.text)
+                Units.Fahrenheit -> String.format("%.1f %s", weather.currentTemperatureF, units.text)
+                Units.Celsius -> String.format("%.1f %s", weather.currentTemperatureC, units.text)
             }
 
             forecastTemp.setTextColor(Color.WHITE)
@@ -187,6 +185,13 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
         val fact = info.fact ?: return
 
         factTextView.text = "Fact: " + fact
+    }
+
+    fun updateAirQuality() {
+        val info = WeatherManager.instance.dashboardInfo ?: return
+        val airQuality = info.airQuality ?: return
+
+        airQualityTextView.text = "Air Quality is " + airQuality.colorValue + " " + airQuality.stringValue
     }
 
     fun aboutButtonTapped() {
