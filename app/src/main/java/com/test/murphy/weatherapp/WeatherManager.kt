@@ -38,6 +38,7 @@ class WeatherManager private constructor() {
 
     fun reloadWeather() {
         try {
+            sendWeatherUpdateStartedIntent()
             loadDashboard()
         } catch (e: IOException) {
             //TODO
@@ -88,6 +89,12 @@ class WeatherManager private constructor() {
     private fun sendWeatherChangedIntent() {
         val successIntent = Intent()
         successIntent.action = "android.intent.action.WEATHER_CHANGED"
+        LocalBroadcastManager.getInstance(WeatherApp.context).sendBroadcast(successIntent)
+    }
+
+    private fun sendWeatherUpdateStartedIntent() {
+        val successIntent = Intent()
+        successIntent.action = "android.intent.action.WEATHER_UPDATE_STARTED"
         LocalBroadcastManager.getInstance(WeatherApp.context).sendBroadcast(successIntent)
     }
 

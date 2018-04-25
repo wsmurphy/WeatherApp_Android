@@ -9,6 +9,7 @@ import android.content.IntentFilter
 import android.graphics.Color
 import android.graphics.Point
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.LocalBroadcastManager
 import android.text.InputType
@@ -46,12 +47,16 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
             return size.x
         }
 
+    private var updateSnackbar: Snackbar? = null
+
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater?.inflate(R.layout.fragment_current, container, false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
+        updateSnackbar = Snackbar.make(activity.findViewById(android.R.id.content), "Updating Weather. Please wait.", Snackbar.LENGTH_INDEFINITE)
 
         //Setup the button actions
         locationButton.setOnClickListener { showLocationAlert() }
@@ -68,12 +73,17 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
                         updateForecastLayout()
                         updateFact()
                         updateAirQuality()
+
+                        updateSnackbar?.dismiss()
+                    } else if (intent.action == "android.intent.action.WEATHER_UPDATE_STARTED") {
+                        updateSnackbar?.show()
                     }
                 }
             }
         }
 
         LocalBroadcastManager.getInstance(WeatherApp.context).registerReceiver(broadcastReceiver, IntentFilter("android.intent.action.WEATHER_CHANGED"))
+        LocalBroadcastManager.getInstance(WeatherApp.context).registerReceiver(broadcastReceiver, IntentFilter("android.intent.action.WEATHER_UPDATE_STARTED"))
     }
 
     private fun updateConditionsLayout() {
@@ -189,9 +199,19 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
 
     fun updateAirQuality() {
         val info = WeatherManager.instance.dashboardInfo ?: return
-        val airQuality = info.uvIndex ?: return
+        val uvIndex = info.uvIndex ?: return
 
-        airQualityTextView.text = "UVIndex is " + airQuality.colorValue + " " + airQuality.stringValue
+        uvindexTextView.text = uvIndex.stringValue
+
+        when (uvIndex.colorValue) {
+            "Green" -> uvindexTextView.setBackgroundColor(resources.getColor(R.color.uvGreen))
+            "Yellow" -> uvindexTextView.setBackgroundColor(resources.getColor(R.color.uvYellow))
+            "Orange" -> uvindexTextView.setBackgroundColor(resources.getColor(R.color.uvOrange))
+            "Red" -> uvindexTextView.setBackgroundColor(resources.getColor(R.color.uvRed))
+            "Violet" -> uvindexTextView.setBackgroundColor(resources.getColor(R.color.uvViolet))
+            "Blue" -> uvindexTextView.setBackgroundColor(resources.getColor(R.color.uvBlue))
+
+        }
     }
 
     fun aboutButtonTapped() {
@@ -209,9 +229,6 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
     }
 
     private fun showLocationAlert() {
-        val builder = AlertDialog.Builder(activity)
-        builder.setTitle("Change Location")
-
         val layout = LinearLayout(activity)
         layout.orientation = LinearLayout.VERTICAL
         val params = LinearLayout.LayoutParams(
@@ -225,30 +242,32 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
 
         input.requestFocus()
 
-        builder.setView(layout)
-        builder.setPositiveButton("OK") { _, _ ->
+        AlertDialog.Builder(activity)
+                .setTitle("Change Location")
+                .setView(layout)
+                .setPositiveButton("OK") { _, _ ->
             Answers.getInstance().logCustom(CustomEvent("Change Location Tapped").putCustomAttribute("Action", "OK"))
 
-            //TODO: Edit checks on zip to ensure 5 digits
             WeatherManager.instance.zip = input.text.toString()
-        }
-
-        builder.setNeutralButton("Use Current Location") { _, _ ->
+        }.setNeutralButton("Use Current Location") { _, _ ->
             Answers.getInstance().logCustom(CustomEvent("Change Location Tapped").putCustomAttribute("Action", "Current Location"))
 
             //Resolve GPS\Network location
             LocationUtils.instance.resolveLocation(activity)
 
             WeatherManager.instance.zip = LocationUtils.instance.zip
-        }
-
-        builder.setNegativeButton("Cancel") { dialog, _ ->
+        }.setNegativeButton("Cancel") { dialog, _ ->
             Answers.getInstance().logCustom(CustomEvent("Change Location Tapped").putCustomAttribute("Action", "Cancel"))
 
             dialog.cancel()
-        }
+        }.show()
 
-        builder.show()
+        //                .setOnKeyListener { dialog, keyCode, event ->
+//            //TODO: Edit checks on zip to ensure 5 digits
+//            //TODO: Check if key is number and total is < 5
+//
+//        }
+
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
