@@ -9,4 +9,11 @@
     <color name="background">@color/darkBlue</color>
     <color name="text">@color/ice</color>
     <color name="buttonBackground">@color/skyBlue</color>
+
+    <color name="uvGreen">#26ff00</color>
+    <color name="uvYellow">#ffe600</color>
+    <color name="uvOrange">#e1560f</color>
+    <color name="uvRed">#ff0d00</color>
+    <color name="uvViolet">#5700df</color>
+    <color name="uvBlue">#000dff</color>
 </resources>

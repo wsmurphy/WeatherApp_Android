@@ -13,7 +13,8 @@ import java.util.*
  */
 
 class WeatherConditions() : Parcelable {
-    var currentTemperature: Double? = null
+    var currentTemperatureF: Double? = null
+    var currentTemperatureC: Double? = null
 
     var conditionCode: Int = 0
     var currentConditions: String? = null
@@ -25,7 +26,8 @@ class WeatherConditions() : Parcelable {
     var date: Date? = null
 
     constructor(parcel: Parcel) : this() {
-        currentTemperature = parcel.readDouble()
+        currentTemperatureF = parcel.readDouble()
+        currentTemperatureC = parcel.readDouble()
         conditionCode = parcel.readInt()
         currentConditions = parcel.readString()
         location = parcel.readString()
@@ -41,7 +43,13 @@ class WeatherConditions() : Parcelable {
             }
 
             val mainObject = jsonObject.getJSONObject("main")
-            currentTemperature = mainObject.getDouble("temp") //There is no separate F and C temp in this API
+
+            //There is no separate F and C temp in this API
+            //We request F and convert to C so that we don't need to make a second network call when the user switches the units
+            currentTemperatureF = mainObject.getDouble("temp")
+            currentTemperatureF?.let {
+                currentTemperatureC = ftoc(it)
+            }
 
             val weatherObject = jsonObject.getJSONArray("weather").getJSONObject(0)
             currentConditions = weatherObject.getString("main")
@@ -59,7 +67,8 @@ class WeatherConditions() : Parcelable {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeValue(currentTemperature)
+        parcel.writeValue(currentTemperatureF)
+        parcel.writeValue(currentTemperatureC)
         parcel.writeInt(conditionCode)
         parcel.writeString(currentConditions)
         parcel.writeString(location)
@@ -78,5 +87,10 @@ class WeatherConditions() : Parcelable {
         override fun newArray(size: Int): Array<WeatherConditions?> {
             return arrayOfNulls(size)
         }
+    }
+
+    //Convert fahrenheit to celsius
+    private fun ftoc(f: Double): Double {
+        return f - 32 / 1.8
     }
 }
