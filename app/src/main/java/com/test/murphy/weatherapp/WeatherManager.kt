@@ -37,13 +37,8 @@ class WeatherManager private constructor() {
         }
 
     fun reloadWeather() {
-        try {
             sendWeatherUpdateStartedIntent()
             loadDashboard()
-        } catch (e: IOException) {
-            //TODO
-        }
-
     }
 
     //Call BFF to get info for dashboard
@@ -63,27 +58,33 @@ class WeatherManager private constructor() {
                 .build()
 
 
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()
-            }
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    sendWeatherUpdateFailedIntent()
+                    throw e
+                }
 
-            @Throws(IOException::class)
-            override fun onResponse(call: Call, response: okhttp3.Response) {
-                response.body()!!.use { responseBody ->
-                    if (!response.isSuccessful) throw IOException("Unexpected code " + response)
+                @Throws(IOException::class)
+                override fun onResponse(call: Call, response: okhttp3.Response) {
+                    response.body()!!.use { responseBody ->
+                        if (!response.isSuccessful) {
+                            //TODO: Handle exceptions and send failed intent in single place
+                            sendWeatherUpdateFailedIntent()
+                            throw IOException("Unexpected code " + response)
+                        }
 
-                    try {
-                        val jsonObject = JSONObject(responseBody.string())
-                        dashboardInfo = Dashboard(jsonObject)
+                        try {
+                            val jsonObject = JSONObject(responseBody.string())
+                            dashboardInfo = Dashboard(jsonObject)
 
-                        sendWeatherChangedIntent()
-                    } catch (e: JSONException) {
-                        //TODO
+                            sendWeatherChangedIntent()
+                        } catch (e: JSONException) {
+                            sendWeatherUpdateFailedIntent()
+                            throw e
+                        }
                     }
                 }
-            }
-        })
+            })
     }
 
     private fun sendWeatherChangedIntent() {
@@ -93,9 +94,15 @@ class WeatherManager private constructor() {
     }
 
     private fun sendWeatherUpdateStartedIntent() {
-        val successIntent = Intent()
-        successIntent.action = "android.intent.action.WEATHER_UPDATE_STARTED"
-        LocalBroadcastManager.getInstance(WeatherApp.context).sendBroadcast(successIntent)
+        val startedIntent = Intent()
+        startedIntent.action = "android.intent.action.WEATHER_UPDATE_STARTED"
+        LocalBroadcastManager.getInstance(WeatherApp.context).sendBroadcast(startedIntent)
+    }
+
+    private fun sendWeatherUpdateFailedIntent() {
+        val failedIntent = Intent()
+        failedIntent.action = "android.intent.action.WEATHER_UPDATE_FAILED"
+        LocalBroadcastManager.getInstance(WeatherApp.context).sendBroadcast(failedIntent)
     }
 
 

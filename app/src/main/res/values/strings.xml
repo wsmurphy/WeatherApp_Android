@@ -3,4 +3,5 @@
     <string name="location_button_text">Change Location</string>
     <string name="about">About</string>
     <string name="conditionsIcon">Conditions Icon</string>
+    <string name="retry_text">Retry?</string>
 </resources>

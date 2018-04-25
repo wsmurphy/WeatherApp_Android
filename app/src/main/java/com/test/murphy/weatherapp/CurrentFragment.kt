@@ -27,7 +27,7 @@ import com.crashlytics.android.answers.CustomEvent
 import com.test.murphy.weatherapp.model.Units
 import kotlinx.android.synthetic.main.fragment_current.*
 import java.text.SimpleDateFormat
-import java.util.Locale
+import java.util.*
 
 /**
  * A simple [Fragment] subclass.
@@ -77,6 +77,12 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
                         updateSnackbar?.dismiss()
                     } else if (intent.action == "android.intent.action.WEATHER_UPDATE_STARTED") {
                         updateSnackbar?.show()
+                    } else if (intent.action == "android.intent.action.WEATHER_UPDATE_FAILED") {
+                        updateSnackbar?.dismiss()
+
+                        Snackbar.make(activity.findViewById(android.R.id.content), "Failed fetching weather", Snackbar.LENGTH_LONG).setAction(R.string.retry_text,  {
+                            WeatherManager.instance.reloadWeather()
+                        }).show()
                     }
                 }
             }
@@ -84,6 +90,7 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
 
         LocalBroadcastManager.getInstance(WeatherApp.context).registerReceiver(broadcastReceiver, IntentFilter("android.intent.action.WEATHER_CHANGED"))
         LocalBroadcastManager.getInstance(WeatherApp.context).registerReceiver(broadcastReceiver, IntentFilter("android.intent.action.WEATHER_UPDATE_STARTED"))
+        LocalBroadcastManager.getInstance(WeatherApp.context).registerReceiver(broadcastReceiver, IntentFilter("android.intent.action.WEATHER_UPDATE_FAILED"))
     }
 
     private fun updateConditionsLayout() {
