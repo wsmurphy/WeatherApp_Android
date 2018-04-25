@@ -6,7 +6,6 @@ import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.CustomEvent
 import com.test.murphy.weatherapp.model.Dashboard
 import com.test.murphy.weatherapp.model.Units
-import com.test.murphy.weatherapp.model.WeatherForecast
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.HttpUrl
@@ -19,7 +18,6 @@ class WeatherManager private constructor() {
 
     private val client = OkHttpClient()
 
-    var forecast: WeatherForecast? = null
     var dashboardInfo: Dashboard? = null
 
     //Reload weather
@@ -28,7 +26,6 @@ class WeatherManager private constructor() {
             field = requestedUnits
             Answers.getInstance().logCustom(CustomEvent("Units Toggle Tapped").putCustomAttribute("Changed To", this.units.text))
             //No reason to make new network call, just tell UI that weather changed
-//            reloadWeather()
             sendWeatherChangedIntent()
         }
 

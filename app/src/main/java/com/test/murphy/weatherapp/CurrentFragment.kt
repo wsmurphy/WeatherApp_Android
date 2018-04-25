@@ -26,7 +26,7 @@ import com.crashlytics.android.answers.CustomEvent
 import com.test.murphy.weatherapp.model.Units
 import kotlinx.android.synthetic.main.fragment_current.*
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 
 /**
  * A simple [Fragment] subclass.
@@ -189,9 +189,9 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
 
     fun updateAirQuality() {
         val info = WeatherManager.instance.dashboardInfo ?: return
-        val airQuality = info.airQuality ?: return
+        val airQuality = info.uvIndex ?: return
 
-        airQualityTextView.text = "Air Quality is " + airQuality.colorValue + " " + airQuality.stringValue
+        airQualityTextView.text = "UVIndex is " + airQuality.colorValue + " " + airQuality.stringValue
     }
 
     fun aboutButtonTapped() {

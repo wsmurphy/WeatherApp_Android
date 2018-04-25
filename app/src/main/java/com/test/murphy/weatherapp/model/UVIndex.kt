@@ -9,8 +9,7 @@ import org.json.JSONObject
  * Created by wsmurphy on 3/30/18.
  */
 
-//TODO: This isn't air quality, it's UVI index.
-class AirQuality() : Parcelable {
+class UVIndex() : Parcelable {
     var value: Double? = null
     var stringValue: String? = null
     var colorValue: String? = null
@@ -45,12 +44,12 @@ class AirQuality() : Parcelable {
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<AirQuality> {
-        override fun createFromParcel(parcel: Parcel): AirQuality {
-            return AirQuality(parcel)
+    companion object CREATOR : Parcelable.Creator<UVIndex> {
+        override fun createFromParcel(parcel: Parcel): UVIndex {
+            return UVIndex(parcel)
         }
 
-        override fun newArray(size: Int): Array<AirQuality?> {
+        override fun newArray(size: Int): Array<UVIndex?> {
             return arrayOfNulls(size)
         }
     }

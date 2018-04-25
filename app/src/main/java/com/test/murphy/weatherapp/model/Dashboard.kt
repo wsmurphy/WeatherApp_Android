@@ -13,12 +13,12 @@ class Dashboard() : Parcelable {
     var conditions: WeatherConditions? = null
     var forecast: WeatherForecast? = null
     var fact: String? = null
-    var airQuality: AirQuality? = null
+    var uvIndex: UVIndex? = null
 
     constructor(parcel: Parcel) : this() {
         conditions = parcel.readParcelable(WeatherConditions.javaClass.classLoader)
         fact = parcel.readString()
-        airQuality = parcel.readParcelable(AirQuality.javaClass.classLoader)
+        uvIndex = parcel.readParcelable(UVIndex.javaClass.classLoader)
     }
 
     constructor(jsonObject: JSONObject) : this() {
@@ -32,10 +32,8 @@ class Dashboard() : Parcelable {
             val factJson = jsonObject.getJSONObject("Fact")
             fact = factJson.getString("value")
 
-            //TODO: This isn't air quality, it's UVI index.
-            //Need to chnage here and in BFF
-            var airQualityJson = jsonObject.getJSONObject("AirQuality")
-            airQuality = AirQuality(airQualityJson)
+            var uviJson = jsonObject.getJSONObject("UVIndex")
+            uvIndex = UVIndex(uviJson)
 
         } catch (je: JSONException) {
             //TODO
@@ -47,7 +45,7 @@ class Dashboard() : Parcelable {
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeParcelable(conditions, flags)
         parcel.writeString(fact)
-        parcel.writeParcelable(airQuality, flags)
+        parcel.writeParcelable(uvIndex, flags)
     }
 
     override fun describeContents(): Int {
