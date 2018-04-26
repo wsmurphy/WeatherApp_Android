@@ -68,6 +68,12 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
 
         val broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
+
+                //Make sure activity hasn't gone missing
+                if (activity == null) {
+                    return
+                }
+
                 //This should be sent from a background thread. Return to main before updating UI
                 activity.runOnUiThread {
                     if (intent.action == "android.intent.action.WEATHER_CHANGED") {
@@ -83,7 +89,7 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
                     } else if (intent.action == "android.intent.action.WEATHER_UPDATE_FAILED") {
                         updateSnackbar?.dismiss()
 
-                        Snackbar.make(activity.findViewById(android.R.id.content), getString(R.string.update_failed_message), Snackbar.LENGTH_LONG).setAction(R.string.retry_text,  {
+                        Snackbar.make(activity.findViewById(android.R.id.content), getString(R.string.update_failed_message), Snackbar.LENGTH_LONG).setAction(R.string.retry_text, {
                             WeatherManager.instance.reloadWeather()
                         }).show()
                     }
