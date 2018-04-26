@@ -36,6 +36,14 @@ class WeatherManager private constructor() {
             reloadWeather()
         }
 
+    fun toggleUnits() {
+        if (units == Units.Fahrenheit) {
+            units = Units.Celsius
+        } else {
+            units = Units.Fahrenheit
+        }
+    }
+
     fun reloadWeather() {
             sendWeatherUpdateStartedIntent()
             loadDashboard()
@@ -45,6 +53,13 @@ class WeatherManager private constructor() {
     //Temperatures will be returned in F and converted to C in WeatherConditions object if needed
     private fun loadDashboard() {
         val location = this.zip
+
+        //Make sure the zip isn't empty
+        //This should probably be done farther up the stack
+        if (location == "" || location == null) {
+            sendWeatherUpdateFailedIntent()
+            return
+        }
 
         val builder = HttpUrl.Builder()
         builder.scheme("http")
