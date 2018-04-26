@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">Weather Conditions</string>
     <string name="location_button_text">Change Location</string>
+    <string name="units_button_text">Change Units</string>
     <string name="about">About</string>
     <string name="conditionsIcon">Conditions Icon</string>
+    <string name="retry_text">Retry?</string>
+    <string name="update_message">Updating Weather. Please wait...</string>
+    <string name="update_failed_message">Failed fetching weather</string>
 </resources>

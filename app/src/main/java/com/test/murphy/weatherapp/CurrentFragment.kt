@@ -1,6 +1,5 @@
 package com.test.murphy.weatherapp
 
-import android.app.AlertDialog
 import android.app.Fragment
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -12,22 +11,34 @@ import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.LocalBroadcastManager
-import android.text.InputType
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.widget.EditText
 import android.widget.GridLayout
-import android.widget.LinearLayout
 import android.widget.TextView
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.CustomEvent
 import com.test.murphy.weatherapp.model.Units
 import kotlinx.android.synthetic.main.fragment_current.*
 import java.text.SimpleDateFormat
-import java.util.Locale
+import java.util.*
+
+/** TODOs:
+ * 1. Add High\Low temp
+ * 2. Fix UVIndex UI
+ * 3. Move change location and units to nav drawer
+ * 4. Remove fact
+ * 5. Add wind, humidity, Dew Point, Barometer, Visibility
+ * 6. Add sunrise\sunset
+ * 7. Add calculated conditions byline
+ *    a. When is a good window without rain (for jeeps, bicycles)
+ *    b. Rain\snow will continue for the next x hours
+ *    c. It's a great day for ... (beach, outdoors, zoo, etc)
+ * 8. Fix change location alert. Auto launch the keyboard.
+ * 9. Fix Location name, resolve from zip code when possible even though weather station may be in major city.
+ *10. Calculated suggestions for weather (clothing, jeep top up\down, etc)
+ *11. Settings to enable\disable features (I have a jeep\convertable, i ride bikes, etc)
+ *12. Rename veloweather (if cycling specific)?
+ */
 
 /**
  * A simple [Fragment] subclass.
@@ -36,9 +47,6 @@ import java.util.Locale
  */
 class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback {
     private val dateFormat = SimpleDateFormat("h aa", Locale.US)
-
-    private val isUnitsToggleChecked: Boolean
-        get() = unitsToggle.isChecked
 
     private val screenWidth: Int
         get() {
@@ -56,12 +64,7 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        updateSnackbar = Snackbar.make(activity.findViewById(android.R.id.content), "Updating Weather. Please wait.", Snackbar.LENGTH_INDEFINITE)
-
-        //Setup the button actions
-        locationButton.setOnClickListener { showLocationAlert() }
-        aboutButton.setOnClickListener { aboutButtonTapped() }
-        unitsToggle.setOnClickListener { unitsToggleTapped() }
+        updateSnackbar = Snackbar.make(activity.findViewById(android.R.id.content), getString(R.string.update_message), Snackbar.LENGTH_INDEFINITE)
 
         val broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
@@ -77,6 +80,12 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
                         updateSnackbar?.dismiss()
                     } else if (intent.action == "android.intent.action.WEATHER_UPDATE_STARTED") {
                         updateSnackbar?.show()
+                    } else if (intent.action == "android.intent.action.WEATHER_UPDATE_FAILED") {
+                        updateSnackbar?.dismiss()
+
+                        Snackbar.make(activity.findViewById(android.R.id.content), getString(R.string.update_failed_message), Snackbar.LENGTH_LONG).setAction(R.string.retry_text,  {
+                            WeatherManager.instance.reloadWeather()
+                        }).show()
                     }
                 }
             }
@@ -84,6 +93,7 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
 
         LocalBroadcastManager.getInstance(WeatherApp.context).registerReceiver(broadcastReceiver, IntentFilter("android.intent.action.WEATHER_CHANGED"))
         LocalBroadcastManager.getInstance(WeatherApp.context).registerReceiver(broadcastReceiver, IntentFilter("android.intent.action.WEATHER_UPDATE_STARTED"))
+        LocalBroadcastManager.getInstance(WeatherApp.context).registerReceiver(broadcastReceiver, IntentFilter("android.intent.action.WEATHER_UPDATE_FAILED"))
     }
 
     private fun updateConditionsLayout() {
@@ -135,6 +145,8 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
 
         //Scroll the entire forecast
         val columnCount = weatherForecast.forecast.size
+
+        //TODO: Reset to first cell before refreshing
 
         forecastGrid.columnCount = columnCount
         forecastGrid.rowCount = 3
@@ -212,62 +224,6 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
             "Blue" -> uvindexTextView.setBackgroundColor(resources.getColor(R.color.uvBlue))
 
         }
-    }
-
-    fun aboutButtonTapped() {
-        val builder = AlertDialog.Builder(activity)
-        builder.setTitle("About")
-        builder.setMessage("Weather icons courtesy of Icons8 under CC-BY ND 3.0 license.\nhttps://icons8.com/")
-        builder.setPositiveButton("OK") { _, _ ->
-            //TODO: Do nothing
-        }
-        builder.show()
-    }
-
-    fun unitsToggleTapped() {
-        WeatherManager.instance.units = if (!isUnitsToggleChecked) Units.Fahrenheit else Units.Celsius
-    }
-
-    private fun showLocationAlert() {
-        val layout = LinearLayout(activity)
-        layout.orientation = LinearLayout.VERTICAL
-        val params = LinearLayout.LayoutParams(
-                MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        params.setMargins(80, 0, 80, 0) //TODO: How far to inset?
-
-
-        val input = EditText(activity)
-        input.inputType = InputType.TYPE_CLASS_NUMBER
-        layout.addView(input, params)
-
-        input.requestFocus()
-
-        AlertDialog.Builder(activity)
-                .setTitle("Change Location")
-                .setView(layout)
-                .setPositiveButton("OK") { _, _ ->
-            Answers.getInstance().logCustom(CustomEvent("Change Location Tapped").putCustomAttribute("Action", "OK"))
-
-            WeatherManager.instance.zip = input.text.toString()
-        }.setNeutralButton("Use Current Location") { _, _ ->
-            Answers.getInstance().logCustom(CustomEvent("Change Location Tapped").putCustomAttribute("Action", "Current Location"))
-
-            //Resolve GPS\Network location
-            LocationUtils.instance.resolveLocation(activity)
-
-            WeatherManager.instance.zip = LocationUtils.instance.zip
-        }.setNegativeButton("Cancel") { dialog, _ ->
-            Answers.getInstance().logCustom(CustomEvent("Change Location Tapped").putCustomAttribute("Action", "Cancel"))
-
-            dialog.cancel()
-        }.show()
-
-        //                .setOnKeyListener { dialog, keyCode, event ->
-//            //TODO: Edit checks on zip to ensure 5 digits
-//            //TODO: Check if key is number and total is < 5
-//
-//        }
-
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
