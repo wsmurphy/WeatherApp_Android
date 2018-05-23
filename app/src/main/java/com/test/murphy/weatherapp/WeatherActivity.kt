@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.text.InputType
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import android.widget.LinearLayout
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.CustomEvent
+import com.google.firebase.iid.FirebaseInstanceId
 import io.fabric.sdk.android.Fabric
 import kotlinx.android.synthetic.main.activity_weather.*
 
@@ -67,6 +69,9 @@ class WeatherActivity : AppCompatActivity() {
         } else {
             WeatherManager.instance.reloadWeather()
         }
+
+        val refreshedToken = FirebaseInstanceId.getInstance().token
+        Log.d("WeatherAct", "Refreshed token: $refreshedToken")
     }
 
     private fun aboutButtonTapped() {
