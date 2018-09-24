@@ -4,6 +4,8 @@ import android.content.Intent
 import android.support.v4.content.LocalBroadcastManager
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.CustomEvent
+import com.google.firebase.perf.FirebasePerformance
+import com.google.firebase.perf.metrics.AddTrace
 import com.test.murphy.weatherapp.model.Dashboard
 import com.test.murphy.weatherapp.model.Units
 import okhttp3.Call
@@ -13,6 +15,8 @@ import okhttp3.OkHttpClient
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
+
+
 
 class WeatherManager private constructor() {
 
@@ -51,6 +55,7 @@ class WeatherManager private constructor() {
 
     //Call BFF to get info for dashboard
     //Temperatures will be returned in F and converted to C in WeatherConditions object if needed
+    @AddTrace(name = "loadDashboard", enabled = true /* optional */)
     private fun loadDashboard() {
         val location = this.zip
 
@@ -73,8 +78,13 @@ class WeatherManager private constructor() {
                 .build()
 
 
+            val myTrace = FirebasePerformance.getInstance().newTrace("weather_trace")
+            myTrace.start()
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
+                    myTrace.incrementMetric("weather_failed", 1);
+                    myTrace.stop()
+
                     sendWeatherUpdateFailedIntent()
                     throw e
                 }
@@ -82,6 +92,9 @@ class WeatherManager private constructor() {
                 @Throws(IOException::class)
                 override fun onResponse(call: Call, response: okhttp3.Response) {
                     response.body()!!.use { responseBody ->
+                        myTrace.incrementMetric("weather_response", 1);
+                        myTrace.stop()
+
                         if (!response.isSuccessful) {
                             //TODO: Handle exceptions and send failed intent in single place
                             sendWeatherUpdateFailedIntent()
