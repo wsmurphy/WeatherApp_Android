@@ -4,31 +4,27 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.text.InputType
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
-import com.crashlytics.android.Crashlytics
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.CustomEvent
-import com.google.firebase.iid.FirebaseInstanceId
-import io.fabric.sdk.android.Fabric
+import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.android.synthetic.main.activity_weather.*
 
 
-
-
 class WeatherActivity : AppCompatActivity() {
+
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_weather)
         setSupportActionBar(app_toolbar)
 
-        Fabric.with(this, Crashlytics())
-        Fabric.with(this, Answers())
+        // Obtain the FirebaseAnalytics instance.
+        firebaseAnalytics = FirebaseAnalytics.getInstance(this)
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -69,18 +65,15 @@ class WeatherActivity : AppCompatActivity() {
         } else {
             WeatherManager.instance.reloadWeather()
         }
-
-        val refreshedToken = FirebaseInstanceId.getInstance().token
-        Log.d("WeatherAct", "Refreshed token: $refreshedToken")
     }
 
     private fun aboutButtonTapped() {
         AlertDialog.Builder(this)
-        .setTitle("About")
-        .setMessage("Weather icons courtesy of Icons8 under CC-BY ND 3.0 license.\nhttps://icons8.com/")
-        .setPositiveButton("OK") { _, _ ->
-            //TODO: Do nothing
-        }.show()
+                .setTitle("About")
+                .setMessage("Weather icons courtesy of Icons8 under CC-BY ND 3.0 license.\nhttps://icons8.com/")
+                .setPositiveButton("OK") { _, _ ->
+                    //TODO: Do nothing
+                }.show()
     }
 
     private fun showLocationAlert() {
@@ -101,21 +94,27 @@ class WeatherActivity : AppCompatActivity() {
                 .setTitle("Change Location")
                 .setView(layout)
                 .setPositiveButton("OK") { _, _ ->
-                    Answers.getInstance().logCustom(CustomEvent("Change Location Tapped").putCustomAttribute("Action", "OK"))
+                    val bundle = Bundle()
+                    bundle.putString("action", "OK")
+                    firebaseAnalytics.logEvent("change_location", bundle)
 
                     WeatherManager.instance.zip = input.text.toString()
                 }.setNeutralButton("Use Current Location") { _, _ ->
-            Answers.getInstance().logCustom(CustomEvent("Change Location Tapped").putCustomAttribute("Action", "Current Location"))
+                    val bundle = Bundle()
+                    bundle.putString("action", "Use Current Location")
+                    firebaseAnalytics.logEvent("change_location", bundle)
 
-            //Resolve GPS\Network location
-            LocationUtils.instance.resolveLocation(this)
+                    //Resolve GPS\Network location
+                    LocationUtils.instance.resolveLocation(this)
 
-            WeatherManager.instance.zip = LocationUtils.instance.zip
-        }.setNegativeButton("Cancel") { dialog, _ ->
-            Answers.getInstance().logCustom(CustomEvent("Change Location Tapped").putCustomAttribute("Action", "Cancel"))
+                    WeatherManager.instance.zip = LocationUtils.instance.zip
+                }.setNegativeButton("Cancel") { dialog, _ ->
+                    val bundle = Bundle()
+                    bundle.putString("action", "Cancel")
+                    firebaseAnalytics.logEvent("change_location", bundle)
 
-            dialog.cancel()
-        }.show()
+                    dialog.cancel()
+                }.show()
     }
 
     private fun unitsToggleTapped() {

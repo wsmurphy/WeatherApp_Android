@@ -16,9 +16,9 @@ class Dashboard() : Parcelable {
     var uvIndex: UVIndex? = null
 
     constructor(parcel: Parcel) : this() {
-        conditions = parcel.readParcelable(WeatherConditions.javaClass.classLoader)
+        conditions = parcel.readParcelable(WeatherConditions::class.java.classLoader)
         fact = parcel.readString()
-        uvIndex = parcel.readParcelable(UVIndex.javaClass.classLoader)
+        uvIndex = parcel.readParcelable(UVIndex::class.java.classLoader)
     }
 
     constructor(jsonObject: JSONObject) : this() {

@@ -1,9 +1,9 @@
 package com.test.murphy.weatherapp
 
 import android.content.Intent
+import android.os.Bundle
 import android.support.v4.content.LocalBroadcastManager
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.CustomEvent
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.perf.FirebasePerformance
 import com.google.firebase.perf.metrics.AddTrace
 import com.test.murphy.weatherapp.model.Dashboard
@@ -28,7 +28,13 @@ class WeatherManager private constructor() {
     var units = Units.Fahrenheit
         set(requestedUnits) {
             field = requestedUnits
-            Answers.getInstance().logCustom(CustomEvent("Units Toggle Tapped").putCustomAttribute("Changed To", this.units.text))
+
+            //Log unit change event
+            var firebaseAnalytics = FirebaseAnalytics.getInstance(WeatherApp.context)
+            val bundle = Bundle()
+            bundle.putString("changed_to", this.units.text)
+            firebaseAnalytics.logEvent("units_toggle_tapped", bundle)
+
             //No reason to make new network call, just tell UI that weather changed
             sendWeatherChangedIntent()
         }
@@ -61,7 +67,7 @@ class WeatherManager private constructor() {
 
         //Make sure the zip isn't empty
         //This should probably be done farther up the stack
-        if (location == "" || location == null) {
+        if (location == "") {
             sendWeatherUpdateFailedIntent()
             return
         }

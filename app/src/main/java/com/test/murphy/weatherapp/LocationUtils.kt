@@ -10,8 +10,7 @@ import android.location.Location
 import android.location.LocationManager
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.CustomEvent
+import com.google.firebase.analytics.FirebaseAnalytics
 import java.io.IOException
 import java.util.*
 
@@ -68,15 +67,15 @@ class LocationUtils private constructor() {
         val resolvedLocation = getLastBestLocation(WeatherApp.context, activity)
 
         if (resolvedLocation == null) {
-            Answers.getInstance().logCustom(CustomEvent("Failed to resolve location"))
+            //Log failure event
+            FirebaseAnalytics.getInstance(WeatherApp.context).logEvent("location_failed", null)
         }
 
         this.location = resolvedLocation
     }
 
     companion object {
-        @JvmField
-        val REQUEST_LOCATION = 0
+        const val REQUEST_LOCATION = 0
 
         @JvmStatic
         val instance by lazy { LocationUtils() }

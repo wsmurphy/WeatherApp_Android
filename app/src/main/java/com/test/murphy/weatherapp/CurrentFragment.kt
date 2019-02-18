@@ -222,12 +222,12 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
         uvindexTextView.text = uvIndex.stringValue
 
         when (uvIndex.colorValue) {
-            "Green" -> uvindexTextView.setBackgroundColor(resources.getColor(R.color.uvGreen))
-            "Yellow" -> uvindexTextView.setBackgroundColor(resources.getColor(R.color.uvYellow))
-            "Orange" -> uvindexTextView.setBackgroundColor(resources.getColor(R.color.uvOrange))
-            "Red" -> uvindexTextView.setBackgroundColor(resources.getColor(R.color.uvRed))
-            "Violet" -> uvindexTextView.setBackgroundColor(resources.getColor(R.color.uvViolet))
-            "Blue" -> uvindexTextView.setBackgroundColor(resources.getColor(R.color.uvBlue))
+            "Green" -> uvindexTextView.setBackgroundColor(resources.getColor(R.color.uvGreen, null))
+            "Yellow" -> uvindexTextView.setBackgroundColor(resources.getColor(R.color.uvYellow, null))
+            "Orange" -> uvindexTextView.setBackgroundColor(resources.getColor(R.color.uvOrange, null))
+            "Red" -> uvindexTextView.setBackgroundColor(resources.getColor(R.color.uvRed, null))
+            "Violet" -> uvindexTextView.setBackgroundColor(resources.getColor(R.color.uvViolet, null))
+            "Blue" -> uvindexTextView.setBackgroundColor(resources.getColor(R.color.uvBlue, null))
 
         }
     }
