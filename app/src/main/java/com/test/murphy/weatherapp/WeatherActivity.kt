@@ -9,6 +9,7 @@ import android.view.MenuItem
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
+import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.android.synthetic.main.activity_weather.*
 
@@ -21,6 +22,8 @@ class WeatherActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_weather)
         setSupportActionBar(app_toolbar)
+
+        FirebaseApp.initializeApp(this)
 
         // Obtain the FirebaseAnalytics instance.
         firebaseAnalytics = FirebaseAnalytics.getInstance(this)
