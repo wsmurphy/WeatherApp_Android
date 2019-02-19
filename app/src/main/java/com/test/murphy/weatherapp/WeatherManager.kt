@@ -2,7 +2,7 @@ package com.test.murphy.weatherapp
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.content.LocalBroadcastManager
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.perf.FirebasePerformance
 import com.google.firebase.perf.metrics.AddTrace
@@ -88,7 +88,7 @@ class WeatherManager private constructor() {
             myTrace.start()
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    myTrace.incrementMetric("weather_failed", 1);
+                    myTrace.incrementMetric("weather_failed", 1)
                     myTrace.stop()
 
                     sendWeatherUpdateFailedIntent()
@@ -98,7 +98,7 @@ class WeatherManager private constructor() {
                 @Throws(IOException::class)
                 override fun onResponse(call: Call, response: okhttp3.Response) {
                     response.body()!!.use { responseBody ->
-                        myTrace.incrementMetric("weather_response", 1);
+                        myTrace.incrementMetric("weather_response", 1)
                         myTrace.stop()
 
                         if (!response.isSuccessful) {

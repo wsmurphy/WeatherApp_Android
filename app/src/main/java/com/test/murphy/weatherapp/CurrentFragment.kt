@@ -1,6 +1,5 @@
 package com.test.murphy.weatherapp
 
-import android.app.Fragment
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -8,15 +7,16 @@ import android.content.IntentFilter
 import android.graphics.Color
 import android.graphics.Point
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.LocalBroadcastManager
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.GridLayout
 import android.widget.TextView
+import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.google.android.material.snackbar.Snackbar
 import com.test.murphy.weatherapp.model.Units
 import kotlinx.android.synthetic.main.fragment_current.*
 import java.text.SimpleDateFormat
@@ -51,31 +51,32 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
     private val screenWidth: Int
         get() {
             val size = Point()
-            activity.windowManager.defaultDisplay.getSize(size)
+            activity?.windowManager?.defaultDisplay?.getSize(size)
             return size.x
         }
 
     private var updateSnackbar: Snackbar? = null
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater?.inflate(R.layout.fragment_current, container, false)
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_current, container, false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        updateSnackbar = Snackbar.make(activity.findViewById(android.R.id.content), getString(R.string.update_message), Snackbar.LENGTH_INDEFINITE)
+        val thisActivity = activity
+
+        //Make sure activity hasn't gone missing
+        thisActivity ?: return
+
+        updateSnackbar = Snackbar.make(thisActivity.findViewById(android.R.id.content), getString(R.string.update_message), Snackbar.LENGTH_INDEFINITE)
 
         val broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
 
-                //Make sure activity hasn't gone missing
-                if (activity == null) {
-                    return
-                }
-
                 //This should be sent from a background thread. Return to main before updating UI
-                activity.runOnUiThread {
+                thisActivity.runOnUiThread {
                     if (intent.action == "android.intent.action.WEATHER_CHANGED") {
                         updateConditionsLayout()
                         updateConditionsImage()
@@ -89,7 +90,7 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
                     } else if (intent.action == "android.intent.action.WEATHER_UPDATE_FAILED") {
                         updateSnackbar?.dismiss()
 
-                        Snackbar.make(activity.findViewById(android.R.id.content), getString(R.string.update_failed_message), Snackbar.LENGTH_LONG).setAction(R.string.retry_text, {
+                        Snackbar.make(thisActivity.findViewById(android.R.id.content), getString(R.string.update_failed_message), Snackbar.LENGTH_LONG).setAction(R.string.retry_text, {
                             WeatherManager.instance.reloadWeather()
                         }).show()
                     }
@@ -239,7 +240,10 @@ class CurrentFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
         if (requestCode == LocationUtils.REQUEST_LOCATION &&
                 grantResults[0] == 0 &&
                 grantResults[1] == 0) {
-            LocationUtils.instance.resolveLocation(activity)
+
+            //TODO: There's got to be a better wat to handle optionals
+            activity ?: return
+            LocationUtils.instance.resolveLocation(activity!!)
 
             WeatherManager.instance.zip = LocationUtils.instance.zip
         }
