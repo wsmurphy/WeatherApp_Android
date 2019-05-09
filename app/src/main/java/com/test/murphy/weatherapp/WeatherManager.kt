@@ -73,7 +73,7 @@ class WeatherManager private constructor() {
         }
 
         val builder = HttpUrl.Builder()
-        builder.scheme("http")
+        builder.scheme("https")
                 .host("immense-depths-81664.herokuapp.com")
                 .addPathSegment("dashboard")
                 .addQueryParameter("zip", location)
